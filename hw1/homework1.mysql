@@ -139,6 +139,28 @@ group by ID;
 -- Hint: check the capacity of classroom table.
 
 
+DELIMITER //
+create trigger reject_registration before insert on takes
+for each row
+begin
+    declare full numeric(4,0);
+    declare status numeric(4,0);
+
+    set full = (select capacity 
+                    from section natural join classroom
+                    where course_id = new.course_id and sec_id = new.sec_id and semester = new.semester);
+    set status = (select count(ID)
+               from takes natural join section
+               where course_id = new.course_id and sec_id = new.sec_id and semester=new.semester
+               group by course_id, semester, year, sec_id);
+
+    CASE 
+        WHEN status=full then set new.ID = NULL;
+    end CASE;
+end//
+DELIMITER ;
+
+
 -- (8)
 -- Create a trigger that adds a new advising relationship into ’advisor’ table when a new stu- dent is added to ’student’ table.
 -- If there are multiple instructors in the student’s department, the most paid instructor (e.g., Brandt in Comp. Sci.) becomes the advisor.
