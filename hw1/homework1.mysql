@@ -118,22 +118,20 @@ create function convert_grade(grade varchar(2)) returns numeric(3,2)
     end //
 DELIMITER ;
 
-select round(sum(credits*convert_grade(grade))/sum(credits),2) as average_gpa
-from course natural join takes
-where dept_name='Comp. Sci.'
+select ID, name, round(sum(credits*convert_grade(grade))/sum(credits),2) as average_gpa
+from takes natural join course natural join student 
+where ID in (select ID from student where dept_name='Comp. Sci.')
 group by ID;
 
 -->
--- +-------------+
--- | average_gpa |
--- +-------------+
--- |        3.87 |
--- |        3.43 |
--- |        2.02 |
--- |        3.50 |
--- |        4.00 |
--- |        2.26 |
--- +-------------+
+-- +-------+----------+-------------+
+-- | ID    | name     | average_gpa |
+-- +-------+----------+-------------+
+-- | 00128 | Zhang    |        3.87 |
+-- | 12345 | Shankar  |        3.43 |
+-- | 54321 | Williams |        3.50 |
+-- | 76543 | Brown    |        4.00 |
+-- +-------+----------+-------------+
 
 
 -- (7)
