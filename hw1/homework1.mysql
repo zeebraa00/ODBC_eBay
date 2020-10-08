@@ -165,3 +165,16 @@ DELIMITER ;
 -- Create a trigger that adds a new advising relationship into ’advisor’ table when a new stu- dent is added to ’student’ table.
 -- If there are multiple instructors in the student’s department, the most paid instructor (e.g., Brandt in Comp. Sci.) becomes the advisor.
 
+DELIMITER //
+create trigger new_advisor after insert on student
+for each row
+begin
+	CASE 
+        WHEN new.dept_name is not null then insert advisor(s_ID, i_ID)
+            with maximum(dept_name,salary) as (select dept_name, max(salary) from instructor group by dept_name)
+            select new.ID, inst.ID
+            from instructor as inst natural join maximum
+            where inst.salary = maximum.salary and new.dept_name = inst.dept_name;
+	end CASE;
+end//
+DELIMITER ;
