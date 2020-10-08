@@ -95,8 +95,45 @@ where course.course_id in (
 -- Show the student ID, name, and GPA.
 -- Please ignore tot_cred column of student table.
 -- Please use a stored function to convert letter grades to numbers.
+DELIMITER //
+create function convert_grade(grade varchar(2)) returns numeric(3,2)
+    begin
+        declare converted numeric(3,2);
+            CASE
+                WHEN grade='A+' then set converted = 4.3;
+                WHEN grade='A' then set converted = 4.0;
+                WHEN grade='A-' then set converted = 3.7;
+                WHEN grade='B+' then set converted = 3.3;
+                WHEN grade='B' then set converted = 3.0;
+                WHEN grade='B-' then set converted = 2.7;
+                WHEN grade='C+' then set converted = 2.3;
+                WHEN grade='C' then set converted = 2.0;
+                WHEN grade='C-' then set converted = 1.7;
+                WHEN grade='D+' then set converted = 1.3;
+                WHEN grade='D' then set converted = 1.0;
+                WHEN grade='D-' then set converted = 0.7;
+                ELSE set converted = 0.0;
+            END CASE;
+        return converted;
+    end //
+DELIMITER ;
 
-select * from takes where ID in (select ID from student where dept_name='Comp. Sci.');
+select round(sum(credits*convert_grade(grade))/sum(credits),2) as average_gpa
+from course natural join takes
+where dept_name='Comp. Sci.'
+group by ID;
+
+-->
+-- +-------------+
+-- | average_gpa |
+-- +-------------+
+-- |        3.87 |
+-- |        3.43 |
+-- |        2.02 |
+-- |        3.50 |
+-- |        4.00 |
+-- |        2.26 |
+-- +-------------+
 
 
 -- (7)
