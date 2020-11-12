@@ -150,9 +150,9 @@ begin
                     from section natural join classroom
                     where course_id = new.course_id and sec_id = new.sec_id and semester = new.semester);
     set status = (select count(ID)
-               from takes natural join section
-               where course_id = new.course_id and sec_id = new.sec_id and semester=new.semester
-               group by course_id, semester, year, sec_id);
+                    from takes natural join section
+                    where course_id = new.course_id and sec_id = new.sec_id and semester=new.semester
+                    group by course_id, semester, year, sec_id);
 
     CASE 
         WHEN status=full then set new.ID = NULL;
