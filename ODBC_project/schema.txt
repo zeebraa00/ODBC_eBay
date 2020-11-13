@@ -1,0 +1,44 @@
+Auction system data schema
+
+<<user data>>
+
+- uid : primary key
+- name
+- email
+- password
+
+
+<<watch list>>
+
+- uid : foreign key
+- id : foreign key
+
+
+<<item>>
+
+- id : primary key
+- uid : foreign key
+- category
+- description
+- condition (new, like-new, very-good, good, acceptable)
+- most recent bid price
+- buy it now price
+- status
+- date posted
+- bid ending date
+
+
+<<bid history>>
+
+- uid : foreign key
+- id : foreign key, primary key
+- bid-price : primary key
+
+
+<<transaction>>
+
+- id : primary key
+- date
+- sellers : foreign
+- buyers : foreign
+- sell-price : foreign
