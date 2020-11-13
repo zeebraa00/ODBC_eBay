@@ -1,55 +1,36 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <sql.h>
 #include <sqlext.h>
 
-int main () {
-	SQLHENV   henv  = SQL_NULL_HENV;  
-	SQLHDBC   hdbc  = SQL_NULL_HDBC;   
-	SQLHSTMT  hstmt = SQL_NULL_HSTMT; 
-	SQLRETURN retcode;
+int main(int argc, char* argv[]) {
+    RETCODE error;
+    HENV    env;     /* environment */ 
+    HDBC    conn;    /* database connection */ 
+    SQLAllocEnv(&env);
+    SQLAllocConnect(env, &conn);
+    int res = SQLConnect(conn, "dbswe3003", SQL_NTS, "swe3003", SQL_NTS, 
+                    "welcome2dicl", SQL_NTS); 
 
-	SQLCHAR strName[20];
-	SQLINTEGER nNum=0,nVal=0;
+    printf("res=%d\n", res);
 
-	retcode = SQLAllocHandle(SQL_HANDLE_ENV, SQL_NULL_HANDLE, &henv);
-
-	retcode = SQLSetEnvAttr(henv, SQL_ATTR_ODBC_VERSION, (SQLPOINTER*)SQL_OV_ODBC3, 0);
-
-	retcode = SQLAllocHandle(SQL_HANDLE_DBC, henv, &hdbc);
-
-	SQLSetConnectAttr(hdbc, SQL_LOGIN_TIMEOUT, (SQLPOINTER)10, 0);
-
-	retcode = SQLConnect(hdbc, (SQLCHAR*) "temp1", SQL_NTS,(SQLCHAR*) "user1", 0, "user1", 0);
-
-	retcode = SQLAllocHandle(SQL_HANDLE_STMT, hdbc, &hstmt);
-
-	retcode = SQLPrepare(hstmt, (SQLCHAR*) "INSERT INTO test_01(num,name,val) values(?,?,?)", SQL_NTS); 
-
-
- 	retcode = SQLBindParameter(hstmt, 1, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &nNum, 0, NULL);  
-
- 	retcode = SQLBindParameter(hstmt, 2, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_VARCHAR, 20, 0, strName, sizeof(strName),NULL);  
-
- 	retcode = SQLBindParameter(hstmt, 3, SQL_PARAM_INPUT, SQL_C_LONG, SQL_INTEGER, 0, 0, &nVal, 0, NULL);  
-
-	nNum= 901;
-	sprintf(strName,"test_insert1");
-	nVal=8880;
-	retcode = SQLExecute(hstmt);  
-
-	nNum= 902;
-	sprintf(strName,"test_insert2");
-	nVal=8882;
-	retcode = SQLExecute(hstmt);  
-
-	nNum= 903;
-	sprintf(strName,"test_insert3");
-	nVal=8883;
-	retcode = SQLExecute(hstmt);  
-
-	printf("Insert Process Exit\n");
-
-	return 0;
+    char deptname[80];
+    float salary;
+    SQLLEN lenOut1, lenOut2;
+    HSTMT stmt;
+    char * sqlquery = "select dept_name, sum (salary) \
+                        from instructor \
+                        group by dept_name";
+    SQLAllocStmt(conn, &stmt);
+    error = SQLExecDirect(stmt, sqlquery, SQL_NTS);
+    if (error == SQL_SUCCESS) {
+        SQLBindCol(stmt, 1, SQL_C_CHAR, deptname, 80, &lenOut1);
+        SQLBindCol(stmt, 2, SQL_C_FLOAT, &salary, 0 , &lenOut2);
+        while (SQLFetch(stmt) == SQL_SUCCESS) {
+            printf (" %s %g\n", deptname, salary);
+        }
+    }
+    SQLFreeStmt(stmt, SQL_DROP);
+    SQLDisconnect(conn); 
+    SQLFreeConnect(conn); 
+    SQLFreeEnv(env); 
 }
-
