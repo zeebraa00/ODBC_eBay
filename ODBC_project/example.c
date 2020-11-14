@@ -2,7 +2,7 @@
 #include <sql.h>
 #include <sqlext.h>
 
-int main(int argc, char* argv[]) {
+int main (int argc, char* argv[]) {
     RETCODE error;
     HENV    env;     /* environment */ 
     HDBC    conn;    /* database connection */ 

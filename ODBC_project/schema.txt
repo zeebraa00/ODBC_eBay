@@ -37,7 +37,8 @@ Auction system data schema
 
 <<transaction>>
 
-- id : primary key
+- tid
+- id
 - date
 - sellers : foreign
 - buyers : foreign
