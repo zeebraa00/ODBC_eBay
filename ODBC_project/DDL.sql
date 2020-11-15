@@ -11,8 +11,8 @@ create table item
      uid    		int,
 	 category       varchar(20),
 	 description    varchar(100),
-     condition      varchar(20)
-        check (condition in ('new', 'like-new', 'very-good', 'good', 'acceptable')),
+     condition      varchar(20),
+     CONSTRAINT check (condition in ('new', 'like-new', 'very-good', 'good', 'acceptable')),
      latest_bid     numeric(5,0),
      buy_it_now     numeric(5,0),
      status         varchar(20),
