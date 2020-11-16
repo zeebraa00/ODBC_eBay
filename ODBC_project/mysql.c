@@ -7,7 +7,39 @@ char * ddl2 = "create table item (id int AUTO_INCREMENT, uid int, category varch
 char * ddl3 = "create table transaction (tid int AUTO_INCREMENT, id int, transaction_date datetime, seller_id int, buyer_id int, sell_price numeric(5,0) not null, primary key (tid), foreign key (id) references item(id) on delete cascade, foreign key (seller_id) references user(uid) on delete cascade, foreign key (buyer_id) references user(uid) on delete cascade );";
 char * ddl4 = "create table bid_history (uid int, id int, bid_price numeric(5,0), primary key (id, bid_price), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
 char * ddl5 = "create table watched ( uid int, id int, watchedAt datetime, primary key (uid, id, watchedAt), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
- 
+
+// Implement query
+void query(MYSQL * conn, char * sqlquery) {
+    if (mysql_query(conn, sqlquery)){
+        printf("mysql_query: %s\n", mysql_error(conn));
+        mysql_close(conn);
+        exit(1);
+    }
+}
+
+// Implement query and Print the result
+void query_print(MYSQL * conn, char * sqlquery) {
+    // char * sqlquery = "show tables;";
+    query(conn, sqlquery);
+    // Print the result of query
+    MYSQL_RES *result = mysql_store_result(conn);
+    if (result == NULL) {
+        printf("mysql_store_result: %s\n", mysql_error(conn));
+        mysql_close(conn);
+        exit(1);
+    }
+    int num_fields = mysql_num_fields(result);
+    MYSQL_ROW row;
+    while (( row = mysql_fetch_row(result) )) {
+        for (int i=0; i<num_fields; i++) {
+            printf (" %s ", row[i]? row[i] : "NULL");
+        }
+        printf("\n");
+    }
+    mysql_free_result(result);
+    mysql_close(conn);
+}
+
 int main(int argc, char* argv[]) {
     
     // Initialize mysql
@@ -25,60 +57,9 @@ int main(int argc, char* argv[]) {
     }
 
     // Implement DDL
-    if (mysql_query(conn, ddl1)){
-        printf("mysql_query: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        exit(1);
-    }
-    if (mysql_query(conn, ddl2)){
-        printf("mysql_query: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        exit(1);
-    }
-    if (mysql_query(conn, ddl3)){
-        printf("mysql_query: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        exit(1);
-    }
-    if (mysql_query(conn, ddl4)){
-        printf("mysql_query: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        exit(1);
-    }
-    if (mysql_query(conn, ddl5)){
-        printf("mysql_query: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        exit(1);
-    }
-
-    // Implement query
-    char * sqlquery = "show tables;";
-    if (mysql_query(conn, sqlquery)){
-        printf("mysql_query: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        exit(1);
-    }
-
-    // Print the result of query
-    MYSQL_RES *result = mysql_store_result(conn);
-    if (result == NULL) {
-        printf("mysql_store_result: %s\n", mysql_error(conn));
-        mysql_close(conn);
-        exit(1);
-    }
-
-    int num_fields = mysql_num_fields(result);
-
-    MYSQL_ROW row;
-    while (( row = mysql_fetch_row(result) )) {
-        for (int i=0; i<num_fields; i++) {
-            printf (" %s ", row[i]? row[i] : "NULL");
-        }
-        printf("\n");
-    }
-
-    mysql_free_result(result);
-    mysql_close(conn);
+    query(conn, ddl1);query(conn, ddl2);query(conn, ddl3);query(conn, ddl4);query(conn, ddl5);
+    
+    query_print(conn,"show tables;");
 
     return 0;
 }
