@@ -36,9 +36,14 @@ create table transaction (
 	foreign key (seller_id) references user(uid)
 		on delete cascade,
 	foreign key (buyer_id) references user(uid)
-		on delete cascade,
-	foreign key (sell_price) references item(latest_bid)
+		on delete cascade
 );
+
+create index index_price on transaction;
+
+alter table transaction (
+	add (constraint R1 foreign key (sell_price) references item(latest_bid))
+)
 
 create table bid_history (
 	uid	int,
