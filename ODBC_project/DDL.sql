@@ -39,12 +39,6 @@ create table transaction (
 		on delete cascade
 );
 
-create index index_price on transaction;
-
-alter table transaction (
-	add foreign key (sell_price) references item(latest_bid)
-);
-
 create table bid_history (
 	uid	int,
 	id int,
