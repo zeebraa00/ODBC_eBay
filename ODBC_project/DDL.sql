@@ -42,8 +42,8 @@ create table transaction (
 create index index_price on transaction;
 
 alter table transaction (
-	add (constraint R1 foreign key (sell_price) references item(latest_bid))
-)
+	add foreign key (sell_price) references item(latest_bid)
+);
 
 create table bid_history (
 	uid	int,
