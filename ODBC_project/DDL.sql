@@ -20,7 +20,7 @@ create table item (
     end_date datetime,
 	primary key (id),
 	foreign key (uid) references user(uid)
-		on delete set null
+		on delete cascade
 );
 
 create table transaction (
@@ -32,13 +32,13 @@ create table transaction (
 	sell_price numeric(5,0),
 	primary key (tid),
 	foreign key (id) references item(id)
-		on delete set null,
+		on delete cascade,
 	foreign key (seller_id) references user(uid)
-		on delete set null,
+		on delete cascade,
 	foreign key (buyer_id) references user(uid)
-		on delete set null,
+		on delete cascade,
 	foreign key (sell_price) references item(latest_bid)
-		on delete set null
+		on delete cascade
 );
 
 create table bid_history (
@@ -47,9 +47,9 @@ create table bid_history (
 	bid_price numeric(5,0),
 	primary key (id, bid_price),
 	foreign key (uid) references user(uid)
-		on delete set null,
+		on delete cascade,
 	foreign key (id) references item(id)
-		on delete set null
+		on delete cascade
 );
 
 create table watched (
@@ -58,7 +58,7 @@ create table watched (
 	watchedAt datetime,
 	primary key (uid, id, watchedAt),
  	foreign key (uid) references user(uid)
-	 	on delete set null,
+	 	on delete cascade,
 	foreign key (id) references item(id)
-		on delete set null
+		on delete cascade
 );
