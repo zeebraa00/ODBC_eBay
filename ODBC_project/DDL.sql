@@ -13,7 +13,7 @@ create table item (
 	description varchar(100),
     cond varchar(10)
 		check (cond in ('new', 'like-new', 'very-good', 'good', 'acceptable')),
-    latest_bid numeric(5,0) NOT NULL,
+    latest_bid numeric(5,0) not null,
     buy_it_now numeric(5,0),
     status varchar(20),
     posted_date datetime,
@@ -29,7 +29,7 @@ create table transaction (
 	transaction_date datetime,
 	seller_id int,
 	buyer_id int,
-	sell_price numeric(5,0),
+	sell_price numeric(5,0) not null,
 	primary key (tid),
 	foreign key (id) references item(id)
 		on delete cascade,
@@ -38,7 +38,6 @@ create table transaction (
 	foreign key (buyer_id) references user(uid)
 		on delete cascade,
 	foreign key (sell_price) references item(latest_bid)
-		on delete cascade
 );
 
 create table bid_history (
