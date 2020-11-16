@@ -2,8 +2,7 @@
 #include <mysql.h>
 //#include <my_global.h>  // this is not needed in 8.0
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
   MYSQL *conn = mysql_init(NULL);
   if (conn==NULL){
       printf("mysql_init: %s\n", mysql_error(conn));
@@ -16,13 +15,7 @@ int main(int argc, char* argv[])
       exit(1);
   }
 
-  char * sqlquery = "with temp(building, num) as \
-        (select building, count(course_id) \
-         from section group by building) \
-	select building \
-	from temp \
-	where temp.num = \
-        (select max(temp.num) from temp)";
+  char * sqlquery = "show tables;";
   if(mysql_query(conn, sqlquery)){
       printf("mysql_query: %s\n", mysql_error(conn));
       mysql_close(conn);
