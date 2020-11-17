@@ -10,6 +10,7 @@ char * ddl4 = "create table bid_history (uid int, id int, bid_price numeric(5,0)
 char * ddl5 = "create table watched ( uid int, id int, watchedAt datetime, primary key (uid, id, watchedAt), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
 
 MYSQL *conn;
+MYSQL_RES *result;
 
 // Initialize mysql
 void sql_init() {
@@ -49,7 +50,7 @@ char * sql_query(char * sqlquery, bool do_print) {
         mysql_close(conn);
         return output;
     }
-    MYSQL_RES *result = mysql_store_result(conn);
+    result = mysql_store_result(conn);
     if (result == NULL) {
         printf("mysql_store_result: %s\n", mysql_error(conn));
         mysql_close(conn);
@@ -111,13 +112,15 @@ void login() {
     char query[1000];
     char email[45];
     char pw[20];
+    char *output;
     MYSQL_ROW result;
     printf("----< Login >\n");
     printf("email:");scanf("%s",email); 
     printf("password:");scanf("%s",pw);
     sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
-    sql_query(query, true);
+    output=sql_query(query, true);
+    free(output);
 }
 
 void sign_up() {
@@ -127,6 +130,7 @@ void sign_up() {
     char lastname[20];
     char email[45];
     char pw[20];
+    char *output;
     printf("----< Sign up >\n");
     printf("---- first name:");scanf("%s",firstname);
     printf("---- last name:");scanf("%s",lastname);
@@ -135,20 +139,23 @@ void sign_up() {
     sprintf(name,"%s %s",firstname,lastname);
     sprintf(query, "insert into user(name,email,pw,level) values('%s','%s','%s',%d);",name,email,pw,0);
     printf("Query : %s\n",query);
-    sql_query(query, false);
+    output=sql_query(query, false);
+    free(output);
 }
 
 void login_admin() {
     char query[1000];
     char email[45];
     char pw[20];
+    char *output;
     MYSQL_ROW result;
     printf("----< Login as Administrator >\n");
     printf("email:");scanf("%s",email);
     printf("password:");scanf("%s",pw);
     sprintf(query, "select level from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
-    sql_query(query, true);
+    output=sql_query(query, true);
+    free(output);
 }
 
 int main(int argc, char* argv[]) {
@@ -175,8 +182,9 @@ int main(int argc, char* argv[]) {
             puts("wrong input");
         }
     }
-    
-    sql_query("show tables;",true);
 
+    mysql_free_result(result);
+    mysql_close(conn);
+    
     return 0;
 }
