@@ -6,15 +6,13 @@
 
 ### Prerequistes
 - Mysql Ver 8.0.21 for Linux on x86_64 (MySQL Community Server - GPL)
-<br>
 
 ### How to implement
 - SKKU_CS_DB/ODBC_project/ 에서 실행
 
 ```shell
-$ gcc mysql.c -I ./mysql -lmysqlclient
+$ gcc main.c -I ./mysql -lmysqlclient && ./a.out
 ```
-<br>
 
 ### Language
 - C
