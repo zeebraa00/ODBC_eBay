@@ -12,7 +12,7 @@
 - SKKU_CS_DB/ODBC_project/ 에서 실행
 
 ```shell
-$ gcc mysql.c -I ./mysql -lmysqlclient
+$ gcc main.c -I ./mysql -lmysqlclient
 ```
 <br>
 
