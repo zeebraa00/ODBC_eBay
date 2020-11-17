@@ -1,8 +1,10 @@
 create table user (
 	uid int AUTO_INCREMENT,
-	name varchar(20) not null,
-	email varchar(20) not null,
+	name varchar(40) not null,
+	email varchar(45) not null,
 	pw varchar(20),
+	level int
+		check (level in (0,1)),
     primary key (uid)
 );
 
