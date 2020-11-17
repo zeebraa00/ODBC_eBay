@@ -6,6 +6,7 @@ Auction system data schema
 - name
 - email
 - password
+- level
 
 
 <<watch list>>
