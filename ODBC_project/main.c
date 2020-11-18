@@ -13,6 +13,31 @@ char * admin = "insert into user(name,email,pw,level) values('admin','admin','ad
 MYSQL *conn;
 MYSQL_RES *result;
 
+int user_input(int n) {
+    int buff = 0;
+    while (getchar() != '\n');
+    scanf("%d",&buff);
+    for (int i = 0; i < n; i++) {
+        if (buff == i+1) {
+            return buff;
+        }
+    }
+    buff = 0;
+    return buff;
+}
+
+char * process_query_result(char * output, int n) {
+    char *sArr[100] = {NULL, };
+    int i = 0;
+    char *ptr = strtok(output, "+");
+    while (ptr != NULL) {
+        sArr[i]=ptr;
+        i++;
+        ptr = strtok(NULL, "+");
+    }
+    return sArr[n];
+}
+
 // Initialize mysql
 void sql_init() {
     conn = mysql_init(NULL);
@@ -82,7 +107,7 @@ char * sql_query(char * sqlquery, bool do_print) {
                     length+=strlen(temp);
                     strcat(output,temp);
                 } else {
-                    strcat(output,"NULL+");
+                    strcat(output,"NULL+"); // NULL인 경우 확인 안해봤음 꼭 해보셈 @@@@@
                     length+=5;
                 }
             }
@@ -104,7 +129,7 @@ int login_menu() {
     return num;
 }
 
-void login() {
+int login() {
     char query[1000];
     char email[45];
     char pw[20];
@@ -113,10 +138,19 @@ void login() {
     printf("----< Login >\n");
     printf("email:");scanf("%s",email); 
     printf("password:");scanf("%s",pw);
-    sprintf(query, "select uid, name from user where email='%s' and pw='%s';",email,pw);
+    sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
     printf("query output : %s\n",output);
+    if (strcmp(output,"")) {
+        puts("login success");
+        char *temp = (char *) malloc(10);
+        strcpy(temp,process_query_result(output,0));
+        return atoi(temp);
+    } else {
+        puts("login failed");
+        return 0;
+    }
 }
 
 void sign_up() {
@@ -137,9 +171,10 @@ void sign_up() {
     printf("Query : %s\n",query);
     output=sql_query(query, false);
     printf("query output : %s\n",output);
+    puts("sign up success");
 }
 
-void login_admin() {
+int login_admin() {
     char query[1000];
     char email[45];
     char pw[20];
@@ -148,14 +183,62 @@ void login_admin() {
     printf("----< Login as Administrator >\n");
     printf("email:");scanf("%s",email);
     printf("password:");scanf("%s",pw);
-    sprintf(query, "select level from user where email='%s' and pw='%s';",email,pw);
+    sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
-    printf("user level : %s\n",output);
     if (!strcmp(output,"1+")) {
         puts("You are admin");
+        return 1;
     } else {
         puts("You are not admin.");
+        return 0;
+    }
+}
+
+void sell_item(int user_id) {
+    printf("----< Sell item >\n");
+    printf("---- select item the following category : \n");
+    printf("----(1) Electronics\n");
+    printf("----(2) Books\n");
+    printf("----(3) Home\n");
+    printf("----(4) Clothing\n");
+    printf("----(5) Sporting Goods\n");
+    int buff = user_input(5);
+    printf("category : %d\n",buff);
+}
+
+void main_menu(int user_id) {
+    int num;
+    printf("----< Main menu >\n");
+    printf("----(1) Sell item\n");
+    printf("----(2) Status of Your Item Listed on Auction\n");
+    printf("----(3) Search item\n");
+    printf("----(4) Check Status of your Bid\n");
+    printf("----(5) Check your Account\n");
+    printf("----(6) Quit\n");
+    scanf("%d",&num);
+
+    while (true) {
+        if (num == 1) {
+            sell_item(user_id);
+            continue;
+        } else if (num == 2) {
+            // chk_auction_status();
+            continue;
+        } else if (num == 3) {
+            // search_item();
+            continue;
+        } else if (num == 4) {
+            // chk_bid_status();
+            continue;
+        } else if (num == 5) {
+            // chk_account();
+            continue;
+        } else if (num == 6) {
+            exit(0);
+        } else {
+            puts("wrong input");
+        }
     }
 }
 
@@ -165,18 +248,29 @@ int main(int argc, char* argv[]) {
     // Connect to database
     sql_connect();
     // Implement DDL
-    //ddl(ddl1);ddl(ddl2);ddl(ddl3);ddl(ddl4);ddl(ddl5);ddl(admin);
+    // ddl(ddl1);ddl(ddl2);ddl(ddl3);ddl(ddl4);ddl(ddl5);ddl(admin);
     
     while (true) {
-        int chosen = login_menu();
+        int chosen1 = login_menu();
 
-        if (chosen == 1) {
-            login();
-        } else if (chosen == 2) {
+        if (chosen1 == 1) {
+            int user_id=login(); // admin if user_id == 1
+            if (user_id) {
+                main_menu(user_id);
+            } else {
+                continue;
+            };
+        } else if (chosen1 == 2) {
             sign_up();
-        } else if (chosen == 3) {
-            login_admin();
-        } else if (chosen == 4) {
+            continue;
+        } else if (chosen1 == 3) {
+            if (login_admin()) {
+                main_menu(1); // admin if user_id == 1
+            } else {
+                continue;
+            };
+            continue;
+        } else if (chosen1 == 4) {
             exit(0);
         } else {
             puts("wrong input");
