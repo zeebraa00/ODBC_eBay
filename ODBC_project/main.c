@@ -15,8 +15,8 @@ MYSQL_RES *result;
 
 int user_input(int n) {
     int buff = 0;
-    while (getchar() != '\n');
     scanf("%d",&buff);
+    while (getchar() != '\n');
     for (int i = 0; i < n; i++) {
         if (buff == i+1) {
             return buff;
@@ -119,13 +119,12 @@ char * sql_query(char * sqlquery, bool do_print) {
 }
 
 int login_menu() {
-    int num;
     printf("----< Login menu >\n");
     printf("----(1) Login\n");
     printf("----(2) Sign up\n");
     printf("----(3) Login as Administrator\n");
     printf("----(4) Quit\n");
-    scanf("%d",&num);
+    int num = user_input(4);
     return num;
 }
 
@@ -208,7 +207,6 @@ void sell_item(int user_id) {
 }
 
 void main_menu(int user_id) {
-    int num;
     printf("----< Main menu >\n");
     printf("----(1) Sell item\n");
     printf("----(2) Status of Your Item Listed on Auction\n");
@@ -216,9 +214,10 @@ void main_menu(int user_id) {
     printf("----(4) Check Status of your Bid\n");
     printf("----(5) Check your Account\n");
     printf("----(6) Quit\n");
-    scanf("%d",&num);
 
     while (true) {
+        int num = user_input(6);
+        
         if (num == 1) {
             sell_item(user_id);
             continue;
@@ -235,9 +234,10 @@ void main_menu(int user_id) {
             // chk_account();
             continue;
         } else if (num == 6) {
-            exit(0);
+            break;
         } else {
             puts("wrong input");
+            continue;
         }
     }
 }
