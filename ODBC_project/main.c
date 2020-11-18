@@ -14,6 +14,7 @@ MYSQL_RES *result;
 
 // Initialize mysql
 void sql_init() {
+    conn = mysql_init(NULL);
     if (conn==NULL) {
         printf("mysql_init: %s\n", mysql_error(conn));
         exit(1);
@@ -47,13 +48,13 @@ char * sql_query(char * sqlquery, bool do_print) {
     // Implement the query
     if (mysql_query(conn, sqlquery)){
         printf("mysql_query: %s\n", mysql_error(conn));
-        mysql_close(conn);
+        // mysql_close(conn);
         return output;
     }
     result = mysql_store_result(conn);
     if (result == NULL) {
         printf("mysql_store_result: %s\n", mysql_error(conn));
-        mysql_close(conn);
+        // mysql_close(conn);
         return output;
     }
     
@@ -64,7 +65,7 @@ char * sql_query(char * sqlquery, bool do_print) {
     if (do_print) {
         if (result == NULL) {
             printf("mysql_store_result: %s\n", mysql_error(conn));
-            mysql_close(conn);
+            // mysql_close(conn);
             return output;
         }
         while (( row = mysql_fetch_row(result) )) {
@@ -92,8 +93,6 @@ char * sql_query(char * sqlquery, bool do_print) {
         }
         output[length]='\0';
     }
-    mysql_free_result(result);
-    mysql_close(conn);
     return output;
 }
 
@@ -120,7 +119,6 @@ void login() {
     sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
-    free(output);
 }
 
 void sign_up() {
@@ -140,7 +138,6 @@ void sign_up() {
     sprintf(query, "insert into user(name,email,pw,level) values('%s','%s','%s',%d);",name,email,pw,0);
     printf("Query : %s\n",query);
     output=sql_query(query, false);
-    free(output);
 }
 
 void login_admin() {
@@ -155,17 +152,15 @@ void login_admin() {
     sprintf(query, "select level from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
-    free(output);
 }
 
 int main(int argc, char* argv[]) {
-    conn = mysql_init(NULL);
     // Initialize mysql
     sql_init();
     // Connect to database
     sql_connect();
     // Implement DDL
-    ddl(ddl1);ddl(ddl2);ddl(ddl3);ddl(ddl4);ddl(ddl5);
+    //ddl(ddl1);ddl(ddl2);ddl(ddl3);ddl(ddl4);ddl(ddl5);
     
     while (true) {
         int chosen = login_menu();
