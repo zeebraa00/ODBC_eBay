@@ -8,6 +8,7 @@ char * ddl2 = "create table item (id int AUTO_INCREMENT, uid int, category varch
 char * ddl3 = "create table transaction (tid int AUTO_INCREMENT, id int, transaction_date datetime, seller_id int, buyer_id int, sell_price numeric(5,0) not null, primary key (tid), foreign key (id) references item(id) on delete cascade, foreign key (seller_id) references user(uid) on delete cascade, foreign key (buyer_id) references user(uid) on delete cascade );";
 char * ddl4 = "create table bid_history (uid int, id int, bid_price numeric(5,0), primary key (id, bid_price), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
 char * ddl5 = "create table watched ( uid int, id int, watchedAt datetime, primary key (uid, id, watchedAt), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
+char * admin = "insert into user(name,email,pw,level) values('admin','admin','admin1234',1);";
 
 MYSQL *conn;
 MYSQL_RES *result;
@@ -42,7 +43,7 @@ void ddl(char * sqlquery) {
 // Implement query and Print the result
 // you should set do_print to false if there is no result of query
 char * sql_query(char * sqlquery, bool do_print) {
-    char *output = malloc(1000);
+    char *output = (char *) malloc(1000);
     strcpy(output, "");
     // Implement the query
     if (mysql_query(conn, sqlquery)){
@@ -72,11 +73,14 @@ char * sql_query(char * sqlquery, bool do_print) {
         while (( row = mysql_fetch_row(result) )) {
             printf("Query result : ");
             for (int i=0; i<num_fields; i++) {
-                printf("%s ", row[i]? row[i] : "NULL");
-                if (row[i]) {
-                    strcat(row[i],"+");
-                    length+=strlen(row[i]);
-                    strcat(output,row[i]);
+                printf("row[i] : %s \n", row[i]? row[i] : "NULL");
+                char * temp = (char *) malloc(strlen(row[i]));
+                strcpy(temp, row[i]);
+                printf("temp : %s \n", temp);
+                if (temp) {
+                    strcat(temp,"+");
+                    length+=strlen(temp);
+                    strcat(output,temp);
                 } else {
                     strcat(output,"NULL+");
                     length+=5;
@@ -109,7 +113,7 @@ void login() {
     printf("----< Login >\n");
     printf("email:");scanf("%s",email); 
     printf("password:");scanf("%s",pw);
-    sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
+    sprintf(query, "select uid, name from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
     printf("query output : %s\n",output);
@@ -148,6 +152,11 @@ void login_admin() {
     printf("Query : %s\n",query);
     output=sql_query(query, true);
     printf("user level : %s\n",output);
+    if (!strcmp(output,"1+")) {
+        puts("You are admin");
+    } else {
+        puts("You are not admin.");
+    }
 }
 
 int main(int argc, char* argv[]) {
@@ -156,7 +165,7 @@ int main(int argc, char* argv[]) {
     // Connect to database
     sql_connect();
     // Implement DDL
-    //ddl(ddl1);ddl(ddl2);ddl(ddl3);ddl(ddl4);ddl(ddl5);
+    //ddl(ddl1);ddl(ddl2);ddl(ddl3);ddl(ddl4);ddl(ddl5);ddl(admin);
     
     while (true) {
         int chosen = login_menu();
