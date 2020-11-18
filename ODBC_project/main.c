@@ -44,7 +44,6 @@ void ddl(char * sqlquery) {
 char * sql_query(char * sqlquery, bool do_print) {
     char *output = malloc(1000);
     strcpy(output, "");
-    
     // Implement the query
     if (mysql_query(conn, sqlquery)){
         printf("mysql_query: %s\n", mysql_error(conn));
@@ -62,36 +61,30 @@ char * sql_query(char * sqlquery, bool do_print) {
     MYSQL_ROW row;
     
     // Print the result of query
+    // Make return string : rt1+rt2+rt3+...
     if (do_print) {
         if (result == NULL) {
             printf("mysql_store_result: %s\n", mysql_error(conn));
             // mysql_close(conn);
             return output;
         }
+        int length=0;
         while (( row = mysql_fetch_row(result) )) {
             printf("Query result : ");
             for (int i=0; i<num_fields; i++) {
                 printf("%s ", row[i]? row[i] : "NULL");
+                if (row[i]) {
+                    strcat(row[i],"+");
+                    length+=strlen(row[i]);
+                    strcat(output,row[i]);
+                } else {
+                    strcat(output,"NULL+");
+                    length+=5;
+                }
             }
+            output[length]='\0';
             printf("\n");
         }
-    }
-
-    // Make return string : rt1+rt2+rt3+...
-    int length=0;
-    while (( row = mysql_fetch_row(result) )) {
-        int i;
-        for (i=0; i<num_fields; i++) {
-            if (row[i]) {
-                strcat(row[i],"+");
-                length+=strlen(row[i]);
-                strcat(output,row[i]);
-            } else {
-                strcat(output,"NULL+");
-                length+=5;
-            }
-        }
-        output[length]='\0';
     }
     return output;
 }
@@ -119,6 +112,7 @@ void login() {
     sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
+    printf("query output : %s\n",output);
 }
 
 void sign_up() {
@@ -138,6 +132,7 @@ void sign_up() {
     sprintf(query, "insert into user(name,email,pw,level) values('%s','%s','%s',%d);",name,email,pw,0);
     printf("Query : %s\n",query);
     output=sql_query(query, false);
+    printf("query output : %s\n",output);
 }
 
 void login_admin() {
@@ -152,6 +147,7 @@ void login_admin() {
     sprintf(query, "select level from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
+    printf("user level : %s\n",output);
 }
 
 int main(int argc, char* argv[]) {
