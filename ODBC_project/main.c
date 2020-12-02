@@ -198,7 +198,7 @@ void sell_item(int user_id) {
     char *output;
     char category[20];
     char condition[15];
-    char descr[100];
+    char description[100];
     char buy_now[5];
     char bid_ending[20];
     char bid_time[20];
@@ -240,19 +240,20 @@ void sell_item(int user_id) {
         sprintf(condition,"acceptable");
     }
     printf("---- decription : ");
-    fgets(descr,100,stdin);
-    descr[strlen(descr)-1]='\0';
+    fgets(description,100,stdin);
+    description[strlen(description)-1]='\0';
     int is_num=0;
     while (!is_num) {
         printf("---- buy-it-now price : ");
         scanf("%s",buy_now);
         is_num=atoi(buy_now);
+        if (!is_num) printf("wrong input. try again\n");
     }
     getchar();
     printf("---- bid ending date (yyyy-mm-dd HH:mm, e.g. 2020-12-04 23:59) :");
     fgets(bid_ending,20,stdin);
     bid_ending[strlen(bid_ending)-1]='\0';
-    sprintf(query, "insert into item(uid, category, description, cond, latest_bid, buy_it_now, status, end_date) values('%d','%s','%s','%s',0,%d,'0 bids','%s');",user_id,category,descr,condition,is_num,bid_ending);
+    sprintf(query, "insert into item(uid, category, description, cond, latest_bid, buy_it_now, status, end_date) values('%d','%s','%s','%s',0,%d,'0 bids','%s');",user_id,category,description,condition,is_num,bid_ending);
     printf("Query : %s\n",query);
     output=sql_query(query, false);
     printf("Product registration completed.\n");
@@ -272,16 +273,19 @@ void chk_auction_status(int user_id) {
         sprintf(query, "select id from item where uid=%d order by id asc limit %d,1;",user_id,i);
         id=sql_query(query, false);    
         id[strlen(id)-1]='\0';
-        printf("아이템 아이디 : %s\n",id);
+
         printf("[Item %d]\n",i+1);
+        
         sprintf(query, "select description from item where uid=%d order by id asc limit %d,1;",user_id,i);
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
         printf("   description: %s\n",output);
+        
         sprintf(query, "select status from item where uid=%d order by id asc limit %d,1;",user_id,i);
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
         printf("   status: %s\n",output);
+        
         sprintf(query, "select latest_bid from item where uid=%d order by id asc limit %d,1;",user_id,i);
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
@@ -292,15 +296,228 @@ void chk_auction_status(int user_id) {
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
         printf("   current highest bidder: %s\n",output);
+        
         sprintf(query, "select posted_date from item where uid=%d order by id asc limit %d,1;",user_id,i);
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
         printf("   date posted: %s\n",output);
+        
         sprintf(query, "select end_date from item where uid=%d order by id asc limit %d,1;",user_id,i);
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
         printf("   bid ending date: %s\n",output);
+    }
+}
+
+void search_category(int user_id) {
+    int num;
+    char query[1000];
+    char category[20];
+    char *output;
+    char *id;
+    printf("----< Search items by category > : (Enter the number)\n");
+    printf("----(1) Electronics\n");
+    printf("----(2) Books\n");
+    printf("----(3) Home\n");
+    printf("----(4) Clothing\n");
+    printf("----(5) Sporting Goods\n");
+    num = user_input(5);
+    if (num == 1) {
+        sprintf(category,"Electronics");
+    } else if (num == 2) {
+        sprintf(category,"Books");
+    } else if (num == 3) {
+        sprintf(category,"Home");
+    } else if (num == 4) {
+        sprintf(category,"Clothing");
+    } else {
+        sprintf(category,"Sporting Goods");
+    }
+    printf("----< Search results: Category >\n");
+    sprintf(query, "select count(id) from item where category='%s';",category);
+    output=sql_query(query, false);
+    output[strlen(output)-1]='\0';
+    num = atoi(output);
+    for (int i=0; i<num; i++) {
+        
+        sprintf(query, "select id from item where category='%s' order by id asc limit %d,1;",category,i);
+        id=sql_query(query, false);    
+        id[strlen(id)-1]='\0';
+
+        printf("[Item %d]\n",i+1);
+        
+        sprintf(query, "select description from item where category='%s' order by id asc limit %d,1;",category,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   description: %s\n",output);
+        
+        sprintf(query, "select status from item where category='%s' order by id asc limit %d,1;",category,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   status: %s\n",output);
+        
+        sprintf(query, "select latest_bid from item where category='%s' order by id asc limit %d,1;",category,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   current bidding price: %s\n",output);
+        
+        //이거 확인 안해봤음 확인해봐야함
+        sprintf(query, "select name from user where uid=(select uid from bid_history where id = %s order by bid_price desc limit 0,1);",id);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   current highest bidder: %s\n",output);
+        
+        sprintf(query, "select posted_date from item where category='%s' order by id asc limit %d,1;",category,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   date posted: %s\n",output);
+        
+        sprintf(query, "select end_date from item where category='%s' order by id asc limit %d,1;",category,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   bid ending date: %s\n",output);
     }    
+}
+
+void search_description(int user_id) {
+    int num;
+    char query[1000];
+    char category[20];
+    char description[100];
+    char input[5];
+    char *output;
+    char *id;
+    char *latest_bid;
+    char *buy_it_now;
+    char *status;
+
+    printf("----< Search items by description keyword >\n");
+    printf("---- search keyword : ");
+    fgets(description,100,stdin);
+    description[strlen(description)-1]='\0';
+    
+    printf("----< Search results: keyword search >\n");
+    sprintf(query, "select count(id) from item where description='%s';",description);
+    output=sql_query(query, false);
+    output[strlen(output)-1]='\0';
+    num = atoi(output);
+    for (int i=0; i<num; i++) {
+        sprintf(query, "select id from item where description='%s' order by id asc limit %d,1;",description,i);
+        id=sql_query(query, false);    
+        id[strlen(id)-1]='\0';
+
+        printf("[Item %d]\n",i+1);
+        
+        sprintf(query, "select description from item where description='%s' order by id asc limit %d,1;",description,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   description: %s\n",output);
+        
+        sprintf(query, "select status from item where description='%s' order by id asc limit %d,1;",description,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   status: %s\n",output);
+        
+        sprintf(query, "select latest_bid from item where description='%s' order by id asc limit %d,1;",description,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   current bidding price: %s\n",output);
+        
+        sprintf(query, "select name from user where uid=(select uid from bid_history where id = %s order by bid_price desc limit 0,1);",id);
+        output=sql_query(query, false);  
+        output[strlen(output)-1]='\0';
+        printf("   current highest bidder: %s\n",output);
+        
+        sprintf(query, "select posted_date from item where description='%s' order by id asc limit %d,1;",description,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   date posted: %s\n",output);
+        
+        sprintf(query, "select end_date from item where description='%s' order by id asc limit %d,1;",description,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   bid ending date: %s\n",output);
+    }
+    
+    printf("--- Which item do you want to bid? (Enter the number or 'B' to go back to the previous menu) :");
+    int is_num=0;
+    while (!is_num) {
+        scanf("%s",input);
+        if (!strcmp(input,"B")) return;
+        is_num=atoi(input);
+        if (!is_num) printf("wrong input. try again\n");
+    }
+    int item = is_num-1;
+
+    sprintf(query, "select id from item where description='%s' order by id asc limit %d,1;",description,item);
+    id=sql_query(query, false);
+    id[strlen(id)-1]='\0';
+    
+    sprintf(query, "select latest_bid from item where description='%s' order by id asc limit %d,1;",description,item);
+    latest_bid=sql_query(query,true);
+    latest_bid[strlen(latest_bid)-1]='\0';
+
+    sprintf(query, "select buy_it_now from item where description='%s' order by id asc limit %d,1;",description,item);
+    buy_it_now=sql_query(query,true);
+    buy_it_now[strlen(buy_it_now)-1]='\0';
+
+    sprintf(query, "select status from item where description='%s' order by id asc limit %d,1;",description,item);
+    status=sql_query(query,false);
+    status[strlen(status)-1]='\0';
+
+    printf("--- Bidding price? (Enter the price or 'buy' to pay for the buy-it-now price) :");
+    is_num=0;
+    while (!is_num) {
+        scanf("%s",input);
+        if (!strcmp(input,"buy")) {
+            sprintf(status, "sold out");
+            sprintf(query, "update item set latest_bid=%s, status='%s' where id=%s;",buy_it_now,status,id);
+            sql_query(query, false);
+            sprintf(query, "insert into bid_history(uid,id,bid_price) values(%d,%s,%s);",user_id,id,buy_it_now);
+            sql_query(query, false);
+            return;
+        }
+        is_num=atoi(input);
+        if (!is_num) printf("wrong input. try again\n");
+    }
+    int bidding_price = is_num;
+    sprintf(query, "insert into bid_history(uid,id,bid_price) values(%d,%s,%d);",user_id,id,bidding_price);
+
+    if (bidding_price < atoi(latest_bid)) {
+        printf("you are outbidded.\n");
+        return;
+    }
+    sql_query(query, false);
+
+    char bids_num = status[0]+1;
+    sprintf(status, "%c bids", bids_num);
+    sprintf(query, "update item set latest_bid=%d, status='%s' where id=%s;",bidding_price,status,id);
+    sql_query(query, false);
+}
+
+void search_item(int user_id) {
+    int num;
+    printf("----< Search item > : (Enter the number)\n");
+    printf("----(1) Search items by category\n");
+    printf("----(2) Search items by description keyword\n");
+    printf("----(3) Search items by seller\n");
+    printf("----(4) Search items by date posted\n");
+    printf("----(5) Go Back\n");
+    printf("----(6) Quit\n");
+    num = user_input(6);
+    if (num == 1) {
+        search_category(user_id);
+    } else if (num == 2) {
+        search_description(user_id);
+    } else if (num == 3) {
+        // search_seller();
+    } else if (num == 4) {
+        // search_date();
+    } else if (num == 5) {
+        return;
+    } else {
+        exit(0);
+    }
 }
 
 void main_menu(int user_id) {
@@ -320,8 +537,7 @@ void main_menu(int user_id) {
         } else if (num == 2) {
             chk_auction_status(user_id);
         } else if (num == 3) {
-            // search_item();
-            continue;
+            search_item(user_id);
         } else if (num == 4) {
             // chk_bid_status();
             continue;
@@ -329,7 +545,7 @@ void main_menu(int user_id) {
             // chk_account();
             continue;
         } else if (num == 6) {
-            break;
+            exit(0);
         } else {
             puts("wrong input");
         }
