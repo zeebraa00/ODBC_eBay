@@ -4,9 +4,9 @@
 #include <mysql.h>
 
 char * ddl1 = "create table user (uid int AUTO_INCREMENT, name varchar(20) not null, email varchar(20) not null, pw varchar(20), level int check (level in (0,1)), primary key (uid) );";
-char * ddl2 = "create table item (id int AUTO_INCREMENT, uid int, category varchar(20), description varchar(100), cond varchar(15) check (cond in ('new', 'like-new', 'very-good', 'good', 'acceptable')), latest_bid numeric(5,0) not null, buy_it_now numeric(5,0), status varchar(20), posted_date datetime not null default now(), end_date datetime, primary key (id), foreign key (uid) references user(uid) on delete cascade);";
-char * ddl3 = "create table transaction (tid int AUTO_INCREMENT, id int, transaction_date datetime, seller_id int, buyer_id int, sell_price numeric(5,0) not null, primary key (tid), foreign key (id) references item(id) on delete cascade, foreign key (seller_id) references user(uid) on delete cascade, foreign key (buyer_id) references user(uid) on delete cascade );";
-char * ddl4 = "create table bid_history (uid int, id int, bid_price numeric(5,0), primary key (id, bid_price), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
+char * ddl2 = "create table item (id int AUTO_INCREMENT, uid int, category varchar(20), description varchar(100), cond varchar(15) check (cond in ('new', 'like-new', 'very-good', 'good', 'acceptable')), latest_bid numeric(15,0) not null, buy_it_now numeric(15,0), status varchar(20), posted_date datetime not null default now(), end_date datetime, primary key (id), foreign key (uid) references user(uid) on delete cascade);";
+char * ddl3 = "create table transaction (tid int AUTO_INCREMENT, id int, transaction_date datetime, seller_id int, buyer_id int, sell_price numeric(15,0) not null, primary key (tid), foreign key (id) references item(id) on delete cascade, foreign key (seller_id) references user(uid) on delete cascade, foreign key (buyer_id) references user(uid) on delete cascade );";
+char * ddl4 = "create table bid_history (uid int, id int, bid_price numeric(15,0), primary key (id, bid_price), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
 char * ddl5 = "create table watched ( uid int, id int, watchedAt datetime, primary key (uid, id, watchedAt), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
 char * admin = "insert into user(name,email,pw,level) values('admin','admin','admin1234',1);";
 
@@ -243,7 +243,8 @@ int sell_item(int user_id) {
         sprintf(condition,"acceptable");
     }
     printf("---- decription : ");
-    scanf("%s",descr);
+    fgets(descr,100,stdin);
+    descr[strlen(descr)-1]='\0';
     int is_num=0;
     while (!is_num) {
         printf("---- buy-it-now price : ");
@@ -254,7 +255,6 @@ int sell_item(int user_id) {
     printf("---- bid ending date (yyyy-mm-dd HH:mm, e.g. 2020-12-04 23:59) :");
     fgets(bid_ending,20,stdin);
     bid_ending[strlen(bid_ending)-1]='\0';
-    printf("%s",bid_ending);
     sprintf(query, "insert into item(uid, category, description, cond, latest_bid, buy_it_now, status, end_date) values('%d','%s','%s','%s',0,%d,'0 bids','%s');",user_id,category,descr,condition,is_num,bid_ending);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
@@ -263,8 +263,7 @@ int sell_item(int user_id) {
 }
 
 void main_menu(int user_id) {
-    int flow = 0;
-    while (!flow) {
+    while (true) {
         int num;
         printf("----< Main menu >\n");
         printf("----(1) Sell item\n");
@@ -276,7 +275,7 @@ void main_menu(int user_id) {
         num = user_input(6);
         
         if (num == 1) {
-            flow = sell_item(user_id);
+            sell_item(user_id);
         } else if (num == 2) {
             // chk_auction_status();
             continue;
