@@ -4,7 +4,7 @@
 #include <mysql.h>
 
 char * ddl1 = "create table user (uid int AUTO_INCREMENT, name varchar(20) not null, email varchar(20) not null, pw varchar(20), level int check (level in (0,1)), primary key (uid) );";
-char * ddl2 = "create table item (id int AUTO_INCREMENT, uid int, category varchar(20), description varchar(100), cond varchar(10) check (cond in ('new', 'like-new', 'very-good', 'good', 'acceptable')), latest_bid numeric(5,0) not null, buy_it_now numeric(5,0), status varchar(20), posted_date datetime, end_date datetime, primary key (id), foreign key (uid) references user(uid) on delete cascade );";
+char * ddl2 = "create table item (id int AUTO_INCREMENT, uid int, category varchar(20), description varchar(100), cond varchar(15) check (cond in ('new', 'like-new', 'very-good', 'good', 'acceptable')), latest_bid numeric(5,0) not null, buy_it_now numeric(5,0), status varchar(20), posted_date datetime not null default now(), end_date datetime, primary key (id), foreign key (uid) references user(uid) on delete cascade);";
 char * ddl3 = "create table transaction (tid int AUTO_INCREMENT, id int, transaction_date datetime, seller_id int, buyer_id int, sell_price numeric(5,0) not null, primary key (tid), foreign key (id) references item(id) on delete cascade, foreign key (seller_id) references user(uid) on delete cascade, foreign key (buyer_id) references user(uid) on delete cascade );";
 char * ddl4 = "create table bid_history (uid int, id int, bid_price numeric(5,0), primary key (id, bid_price), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
 char * ddl5 = "create table watched ( uid int, id int, watchedAt datetime, primary key (uid, id, watchedAt), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
@@ -15,15 +15,17 @@ MYSQL_RES *result;
 
 int user_input(int n) {
     int buff = 0;
-    scanf("%d",&buff);
-    while (getchar() != '\n');
-    for (int i = 0; i < n; i++) {
-        if (buff == i+1) {
-            return buff;
+    while (!buff) {
+        scanf("%d",&buff);
+        while (getchar() != '\n');
+        for (int i = 0; i < n; i++) {
+            if (buff == i+1) {
+                return buff;
+            }
         }
     }
-    buff = 0;
-    return buff;
+    // printf("wrong input. try again\n");
+    // return 0;
 }
 
 char * process_query_result(char * output, int n) {
@@ -194,33 +196,88 @@ int login_admin() {
     }
 }
 
-void sell_item(int user_id) {
+int sell_item(int user_id) {
+    char query[1000];
+    char *output;
+    char category[20];
+    char condition[15];
+    char descr[100];
+    char buy_now[5];
+    char bid_ending[20];
+    char bid_time[20];
     printf("----< Sell item >\n");
-    printf("---- select item the following category : \n");
+    printf("---- select item the following category : (Enter the number)\n");
     printf("----(1) Electronics\n");
     printf("----(2) Books\n");
     printf("----(3) Home\n");
     printf("----(4) Clothing\n");
     printf("----(5) Sporting Goods\n");
-    int buff = user_input(5);
-    printf("category : %d\n",buff);
+    int cate = user_input(5);
+    if (cate == 1) {
+        sprintf(category,"Electronics");
+    } else if (cate == 2) {
+        sprintf(category,"Books");
+    } else if (cate == 3) {
+        sprintf(category,"Home");
+    } else if (cate == 4) {
+        sprintf(category,"Clothing");
+    } else {
+        sprintf(category,"Sporting Goods");
+    } 
+    printf("---- condition : (Enter the number)\n");
+    printf("----(1) new\n");
+    printf("----(2) like-new\n");
+    printf("----(3) very-good\n");
+    printf("----(4) good\n");
+    printf("----(5) acceptable\n");
+    int cond = user_input(5);
+    if (cond == 1) {
+        sprintf(condition,"new");
+    } else if (cond == 2) {
+        sprintf(condition,"like-new");
+    } else if (cond == 3) {
+        sprintf(condition,"very-good");
+    } else if (cond == 4) {
+        sprintf(condition,"good");
+    } else {
+        sprintf(condition,"acceptable");
+    }
+    printf("---- decription : ");
+    scanf("%s",descr);
+    int is_num=0;
+    while (!is_num) {
+        printf("---- buy-it-now price : ");
+        scanf("%s",buy_now);
+        is_num=atoi(buy_now);
+    }
+    printf("---- bid ending date (yyyy-mm-dd HH:mm, e.g. 2020-12-04 23:59) :");
+    scanf("%[^\n]s",bid_ending);
+    // scanf("%s",bid_time);
+    // strcat(bid_ending,bid_time);
+    // strcat(bid_ending," ");
+    printf("\n\n%s\n\n",bid_ending);
+    sprintf(query, "insert into item(uid, category, description, cond, latest_bid, buy_it_now, status, end_date) values('%d','%s','%s','%s',0,%d,'0 bids','%s');",user_id,category,descr,condition,is_num,bid_ending);
+    printf("Query : %s\n",query);
+    output=sql_query(query, true);
+    printf("success\n");
+    return 1;
 }
 
 void main_menu(int user_id) {
-    printf("----< Main menu >\n");
-    printf("----(1) Sell item\n");
-    printf("----(2) Status of Your Item Listed on Auction\n");
-    printf("----(3) Search item\n");
-    printf("----(4) Check Status of your Bid\n");
-    printf("----(5) Check your Account\n");
-    printf("----(6) Quit\n");
-
-    while (true) {
-        int num = user_input(6);
+    int flow = 0;
+    while (!flow) {
+        int num;
+        printf("----< Main menu >\n");
+        printf("----(1) Sell item\n");
+        printf("----(2) Status of Your Item Listed on Auction\n");
+        printf("----(3) Search item\n");
+        printf("----(4) Check Status of your Bid\n");
+        printf("----(5) Check your Account\n");
+        printf("----(6) Quit\n");
+        num = user_input(6);
         
         if (num == 1) {
-            sell_item(user_id);
-            continue;
+            flow = sell_item(user_id);
         } else if (num == 2) {
             // chk_auction_status();
             continue;
@@ -237,7 +294,6 @@ void main_menu(int user_id) {
             break;
         } else {
             puts("wrong input");
-            continue;
         }
     }
 }
@@ -248,13 +304,14 @@ int main(int argc, char* argv[]) {
     // Connect to database
     sql_connect();
     // Implement DDL
-    // ddl(ddl1);ddl(ddl2);ddl(ddl3);ddl(ddl4);ddl(ddl5);ddl(admin);
+    // ddl(ddl1);ddl(ddl2);ddl(ddl3);ddl(ddl4);ddl(ddl5);
+    // admin account
+    // ddl(admin);
     
     while (true) {
         int chosen1 = login_menu();
-
         if (chosen1 == 1) {
-            int user_id=login(); // admin if user_id == 1
+            int user_id=login(); // admin if user_id == 1, login failed if user_id == 0
             if (user_id) {
                 main_menu(user_id);
             } else {

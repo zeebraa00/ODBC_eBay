@@ -13,12 +13,12 @@ create table item (
     uid int,
 	category varchar(20),
 	description varchar(100),
-    cond varchar(10)
+    cond varchar(15)
 		check (cond in ('new', 'like-new', 'very-good', 'good', 'acceptable')),
     latest_bid numeric(5,0) not null,
     buy_it_now numeric(5,0),
     status varchar(20),
-    posted_date datetime,
+    posted_date datetime not null default now(),
     end_date datetime,
 	primary key (id),
 	foreign key (uid) references user(uid)
@@ -28,7 +28,7 @@ create table item (
 create table transaction (
 	tid	int AUTO_INCREMENT,
 	id int,
-	transaction_date datetime,
+	transaction_date datetime default now(),
 	seller_id int,
 	buyer_id int,
 	sell_price numeric(5,0) not null,
