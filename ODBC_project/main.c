@@ -23,9 +23,8 @@ int user_input(int n) {
                 return buff;
             }
         }
+        printf("wrong input. try again\n");
     }
-    // printf("wrong input. try again\n");
-    // return 0;
 }
 
 char * process_query_result(char * output, int n) {
@@ -90,32 +89,30 @@ char * sql_query(char * sqlquery, bool do_print) {
     
     // Print the result of query
     // Make return string : rt1+rt2+rt3+...
-    if (do_print) {
-        if (result == NULL) {
-            printf("mysql_store_result: %s\n", mysql_error(conn));
-            // mysql_close(conn);
-            return output;
-        }
-        int length=0;
-        while (( row = mysql_fetch_row(result) )) {
-            printf("Query result : ");
-            for (int i=0; i<num_fields; i++) {
-                printf("row[i] : %s \n", row[i]? row[i] : "NULL");
-                char * temp = (char *) malloc(strlen(row[i]));
-                strcpy(temp, row[i]);
-                printf("temp : %s \n", temp);
-                if (temp) {
-                    strcat(temp,"+");
-                    length+=strlen(temp);
-                    strcat(output,temp);
-                } else {
-                    strcat(output,"NULL+"); // NULL인 경우 확인 안해봤음 꼭 해보셈 @@@@@
-                    length+=5;
-                }
+    if (result == NULL) {
+        printf("mysql_store_result: %s\n", mysql_error(conn));
+        // mysql_close(conn);
+        return output;
+    }
+    int length=0;
+    while (( row = mysql_fetch_row(result) )) {
+        if (do_print) printf("Query result : ");
+        for (int i=0; i<num_fields; i++) {
+            if (do_print) printf("row[i] : %s \n", row[i]? row[i] : "NULL");
+            char * temp = (char *) malloc(strlen(row[i]));
+            strcpy(temp, row[i]);
+            // printf("temp : %s \n", temp);
+            if (temp) {
+                strcat(temp,"+");
+                length+=strlen(temp);
+                strcat(output,temp);
+            } else {
+                strcat(output,"NULL+"); // NULL인 경우 확인 안해봤음 꼭 해보셈 @@@@@
+                length+=5;
             }
-            output[length]='\0';
-            printf("\n");
         }
+        output[length]='\0';
+        if (do_print) printf("\n");
     }
     return output;
 }
@@ -196,7 +193,7 @@ int login_admin() {
     }
 }
 
-int sell_item(int user_id) {
+void sell_item(int user_id) {
     char query[1000];
     char *output;
     char category[20];
@@ -257,9 +254,53 @@ int sell_item(int user_id) {
     bid_ending[strlen(bid_ending)-1]='\0';
     sprintf(query, "insert into item(uid, category, description, cond, latest_bid, buy_it_now, status, end_date) values('%d','%s','%s','%s',0,%d,'0 bids','%s');",user_id,category,descr,condition,is_num,bid_ending);
     printf("Query : %s\n",query);
-    output=sql_query(query, true);
+    output=sql_query(query, false);
     printf("Product registration completed.\n");
-    return 1;
+}
+
+void chk_auction_status(int user_id) {
+    char query[1000];
+    char *output;
+    char *id;
+    int num;
+    printf("----< Status of Your Item Listed on Auction >");
+    sprintf(query, "select count(id) from item where uid=%d;",user_id);
+    output=sql_query(query, false);
+    output[strlen(output)-1]='\0';
+    num = atoi(output);
+    for (int i=0; i<num; i++) {
+        sprintf(query, "select id from item where uid=%d order by id asc limit %d,1;",user_id,i);
+        id=sql_query(query, false);    
+        id[strlen(id)-1]='\0';
+        printf("아이템 아이디 : %s\n",id);
+        printf("[Item %d]\n",i+1);
+        sprintf(query, "select description from item where uid=%d order by id asc limit %d,1;",user_id,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   description: %s\n",output);
+        sprintf(query, "select status from item where uid=%d order by id asc limit %d,1;",user_id,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   status: %s\n",output);
+        sprintf(query, "select latest_bid from item where uid=%d order by id asc limit %d,1;",user_id,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   current bidding price: %s\n",output);
+        
+        //이거 확인 안해봤음 확인해봐야함
+        sprintf(query, "select name from user where uid=(select uid from bid_history where id = %s order by bid_price desc limit 0,1);",id);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   current highest bidder: %s\n",output);
+        sprintf(query, "select posted_date from item where uid=%d order by id asc limit %d,1;",user_id,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   date posted: %s\n",output);
+        sprintf(query, "select end_date from item where uid=%d order by id asc limit %d,1;",user_id,i);
+        output=sql_query(query, false);    
+        output[strlen(output)-1]='\0';
+        printf("   bid ending date: %s\n",output);
+    }    
 }
 
 void main_menu(int user_id) {
@@ -277,8 +318,7 @@ void main_menu(int user_id) {
         if (num == 1) {
             sell_item(user_id);
         } else if (num == 2) {
-            // chk_auction_status();
-            continue;
+            chk_auction_status(user_id);
         } else if (num == 3) {
             // search_item();
             continue;

@@ -1,6 +1,6 @@
 all:
 	javac JDBCexample.java 
-	gcc mysql.c -I /usr/include/mysql -lmysqlclient 
+	gcc main.c -I /usr/include/mysql -lmysqlclient 
 
 run_jdbc: 
 	java -cp .:/usr/share/java/mysql-connector-java.jar JDBCexample "Comp. Sci."
