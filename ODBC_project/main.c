@@ -250,16 +250,15 @@ int sell_item(int user_id) {
         scanf("%s",buy_now);
         is_num=atoi(buy_now);
     }
+    getchar();
     printf("---- bid ending date (yyyy-mm-dd HH:mm, e.g. 2020-12-04 23:59) :");
-    scanf("%[^\n]s",bid_ending);
-    // scanf("%s",bid_time);
-    // strcat(bid_ending,bid_time);
-    // strcat(bid_ending," ");
-    printf("\n\n%s\n\n",bid_ending);
+    fgets(bid_ending,20,stdin);
+    bid_ending[strlen(bid_ending)-1]='\0';
+    printf("%s",bid_ending);
     sprintf(query, "insert into item(uid, category, description, cond, latest_bid, buy_it_now, status, end_date) values('%d','%s','%s','%s',0,%d,'0 bids','%s');",user_id,category,descr,condition,is_num,bid_ending);
     printf("Query : %s\n",query);
     output=sql_query(query, true);
-    printf("success\n");
+    printf("Product registration completed.\n");
     return 1;
 }
 
