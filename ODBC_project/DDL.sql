@@ -45,6 +45,7 @@ create table bid_history (
 	uid	int,
 	id int,
 	bid_price numeric(15,0),
+	status varchar(50),
 	primary key (id, bid_price),
 	foreign key (uid) references user(uid)
 		on delete cascade,
