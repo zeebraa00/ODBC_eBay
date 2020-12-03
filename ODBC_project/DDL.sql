@@ -62,3 +62,5 @@ create table watched (
 	foreign key (id) references item(id)
 		on delete cascade
 );
+
+insert into user(name,email,pw,level) values('admin','admin','admin1234',1);
