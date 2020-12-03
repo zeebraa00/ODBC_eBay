@@ -138,7 +138,7 @@ int login() {
     printf("password:");scanf("%s",pw);
     sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
-    output=sql_query(query, 1);
+    output=sql_query(query, 0);
     printf("query output : %s\n",output);
     if (strcmp(output,"")) {
         puts("login success");
@@ -183,7 +183,7 @@ int login_admin() {
     printf("password:");scanf("%s",pw);
     sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
     printf("Query : %s\n",query);
-    output=sql_query(query, 1);
+    output=sql_query(query, 0);
     if (!strcmp(output,"1+")) {
         puts("You are admin");
         return 1;
@@ -444,7 +444,6 @@ void search_category(int user_id) {
     is_num=0;
     while (!is_num) {
         scanf("%s",input);
-        printf("%s\n",input);
         if (!strcmp(input,"buy")) {
             sprintf(status, "sold");
             sprintf(query, "update item set latest_bid=%s, status='%s' where id=%s;",buy_it_now,status,id);
@@ -454,36 +453,34 @@ void search_category(int user_id) {
             sql_query(query, 0);
             sprintf(query, "insert into transaction(id,seller_id,buyer_id,sell_price) values(%s,%s,%d,%s);",id,uid,user_id,buy_it_now);
             sql_query(query, 0);
+            sprintf(status, "You are outbidded and the item is sold");
+            sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %s;",status,id,buy_it_now);
+            sql_query(query, 0);
             return;
         }
         is_num=atoi(input);
-        printf("sex\n");
-        printf("%d\n",is_num);
         if (!is_num) printf("wrong input. try again\n");
     }
-    printf("i love you\n");
     int bidding_price = is_num;
-    printf("i love you\n");
-    printf("%s\n\n\n",buy_it_now);
-    printf("%d\n\n\n",atoi(buy_it_now));
     if (bidding_price >= atoi(buy_it_now)) {
-        printf("sex1\n\n\n");
         printf("Your bidding is higher or equal than buy-it-now price.\n");
         printf("Please use buy-it-now functionality.\n");
         return;
     }
-    printf("sex2\n\n\n");
     if (bidding_price < atoi(latest_bid)) {
         printf("you are outbidded.\n");
         sprintf(history_status,"You are outbidded");
         sprintf(query, "insert into bid_history(uid,id,bid_price,status) values(%d,%s,%d,'%s');",user_id,id,bidding_price,history_status);
         printf("%s\n",query);
-        sql_query(query, 1);
+        sql_query(query, 0);
         return;
     }
     sprintf(history_status,"You are the highest bidder.");
     sprintf(query, "insert into bid_history(uid,id,bid_price,status) values(%d,%s,%d,'%s');",user_id,id,bidding_price,history_status);
-    sql_query(query, 1);
+    sql_query(query, 0);
+    sprintf(status, "You are outbidded");
+    sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",status,id,bidding_price);
+    sql_query(query, 0);
 
     char bids_num = status[0]+1;
     sprintf(status, "%c bids", bids_num);
@@ -615,6 +612,9 @@ void search_description(int user_id) {
             sql_query(query, 0);
             sprintf(query, "insert into transaction(id,seller_id,buyer_id,sell_price) values(%s,%s,%d,%s);",id,uid,user_id,buy_it_now);
             sql_query(query, 0);
+            sprintf(status, "You are outbidded and the item is sold");
+            sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %s;",status,id,buy_it_now);
+            sql_query(query, 0);
             return;
         }
         is_num=atoi(input);
@@ -636,6 +636,9 @@ void search_description(int user_id) {
     }
     sprintf(history_status,"You are the highest bidder.");
     sprintf(query, "insert into bid_history(uid,id,bid_price,status) values(%d,%s,%d,'%s');",user_id,id,bidding_price,history_status);
+    sql_query(query, 0);
+    sprintf(status, "You are outbidded");
+    sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",status,id,bidding_price);
     sql_query(query, 0);
 
     char bids_num = status[0]+1;
@@ -768,6 +771,9 @@ void search_seller(int user_id) {
             sql_query(query, 0);
             sprintf(query, "insert into transaction(id,seller_id,buyer_id,sell_price) values(%s,%s,%d,%s);",id,uid,user_id,buy_it_now);
             sql_query(query, 0);
+            sprintf(status, "You are outbidded and the item is sold");
+            sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %s;",status,id,buy_it_now);
+            sql_query(query, 0);
             return;
         }
         is_num=atoi(input);
@@ -789,6 +795,9 @@ void search_seller(int user_id) {
     }
     sprintf(history_status,"You are the highest bidder.");
     sprintf(query, "insert into bid_history(uid,id,bid_price,status) values(%d,%s,%d,'%s');",user_id,id,bidding_price,history_status);
+    sql_query(query, 0);
+    sprintf(status, "You are outbidded");
+    sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",status,id,bidding_price);
     sql_query(query, 0);
 
     char bids_num = status[0]+1;
@@ -920,6 +929,9 @@ void search_date(int user_id) {
             sql_query(query, 0);
             sprintf(query, "insert into transaction(id,seller_id,buyer_id,sell_price) values(%s,%s,%d,%s);",id,uid,user_id,buy_it_now);
             sql_query(query, 0);
+            sprintf(status, "You are outbidded and the item is sold");
+            sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %s;",status,id,buy_it_now);
+            sql_query(query, 0);
             return;
         }
         is_num=atoi(input);
@@ -941,6 +953,9 @@ void search_date(int user_id) {
     }
     sprintf(history_status,"You are the highest bidder.");
     sprintf(query, "insert into bid_history(uid,id,bid_price,status) values(%d,%s,%d,'%s');",user_id,id,bidding_price,history_status);
+    sql_query(query, 0);
+    sprintf(status, "You are outbidded");
+    sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",status,id,bidding_price);
     sql_query(query, 0);
 
     char bids_num = status[0]+1;
@@ -981,6 +996,8 @@ void chk_bid_status(int user_id) {
     char bid_price[100];
     char buy_it_now[100];
     char status[100];
+    char sold_price[40];
+    char sold_date[40];
     int num;
 
     printf("----< Check Status of your Bid >\n");
@@ -1014,19 +1031,26 @@ void chk_bid_status(int user_id) {
         printf("   status: %s\n",output);
         
         if (!strcmp(status,"sold")) {
-            printf("  [fix it] sold item menu\n");
-            // 트랜잭션 완성하고 해야함
+            sprintf(query, "select sell_price from transaction where id=%s;",id);
+            strcpy(sold_price,sql_query(query,0));
+            sold_price[strlen(sold_price)-1]='\0';
+
+            sprintf(query, "select transaction_date from transaction where id=%s;",id);
+            strcpy(sold_date,sql_query(query,0));
+            sold_date[strlen(sold_date)-1]='\0';
+            printf("   sold price :%s\n",sold_price);
+            printf("   sold date :%s\n",sold_date);
             continue;
         }
 
         printf("   your bidding price: %s\n",bid_price);
 
-        sprintf(query, "select latest_bid from item where uid=%d order by id asc limit %d,1;",user_id,i);  
+        sprintf(query, "select latest_bid from item where id=%s;",id);  
         strcpy(output,sql_query(query,0));
         output[strlen(output)-1]='\0';
-        printf("   current bidding price: %s\n",output);
+        printf("   current highest bidding price: %s\n",output);
         
-        sprintf(query, "select end_date from item where uid=%d order by id asc limit %d,1;",user_id,i);
+        sprintf(query, "select end_date from item where id=%s;",id);
         strcpy(output,sql_query(query,0)); 
         output[strlen(output)-1]='\0';
         printf("   bid ending date: %s\n",output);
@@ -1034,9 +1058,79 @@ void chk_bid_status(int user_id) {
 }
 
 void chk_account(int user_id) {
-    printf("----< Check your Account >\n");
+    char query[1000];
+    char output[100];
+    char id[10];
+    char tid[10];
+    int num;
+    int income=0;
+    int outcome=0;
+    int commission=0;
 
-    return;
+    printf("----< Check your Account >\n");
+    sprintf(query, "select count(tid) from transaction where seller_id=%d;",user_id);
+    strcpy(output,sql_query(query,0));
+    output[strlen(output)-1]='\0';
+    num = atoi(output);
+    for (int i=0; i<num; i++) {
+        sprintf(query, "select id from transaction where seller_id=%d order by tid asc limit %d,1;",user_id,i);
+        strcpy(id,sql_query(query,0));
+        id[strlen(id)-1]='\0';
+
+        sprintf(query, "select tid from transaction where id=%s;",id);
+        strcpy(tid,sql_query(query,0));
+        tid[strlen(tid)-1]='\0';
+
+        printf("[Sold Item %d]\n",i+1);
+        
+        sprintf(query, "select description from item where id=%s;",id);
+        strcpy(output,sql_query(query,0));
+        output[strlen(output)-1]='\0';
+        printf("   description: %s\n",output);
+        
+        sprintf(query, "select sell_price from transaction where tid=%s;",tid);
+        strcpy(output,sql_query(query,0));
+        output[strlen(output)-1]='\0';
+        printf("   sold price: %s\n",output);
+        income += atoi(output);
+        if (i < 2) {
+            commission -= atoi(output)*0.02;
+        } else {
+            commission -= atoi(output)*0.01;
+        }
+    }
+
+    sprintf(query, "select count(tid) from transaction where buyer_id=%d;",user_id);
+    strcpy(output,sql_query(query,0));
+    output[strlen(output)-1]='\0';
+    num = atoi(output);
+    for (int i=0; i<num; i++) {
+        sprintf(query, "select id from transaction where buyer_id=%d order by tid asc limit %d,1;",user_id,i);
+        strcpy(id,sql_query(query,0));
+        id[strlen(id)-1]='\0';
+
+        sprintf(query, "select tid from transaction where id=%s;",id);
+        strcpy(tid,sql_query(query,0));
+        tid[strlen(tid)-1]='\0';
+
+        printf("\n[Purchased Item %d]\n",i+1);
+        
+        sprintf(query, "select description from item where id=%s;",id);
+        strcpy(output,sql_query(query,0));
+        output[strlen(output)-1]='\0';
+        printf("   description: %s\n",output);
+        
+        sprintf(query, "select sell_price from transaction where tid=%s;",tid);
+        strcpy(output,sql_query(query,0));
+        output[strlen(output)-1]='\0';
+        printf("   purchased price: %s\n",output);
+        outcome-=atoi(output);
+    }
+    printf("\n[Your Balance Summary]\n");
+    printf("sold : %d won\n",income);
+    printf("commission : %d won\n",commission);
+    printf("purchased : %d won\n",outcome);
+    printf("Total balance : %d won\n",income+commission+outcome);
 };
 
 void main_menu(int user_id) {
