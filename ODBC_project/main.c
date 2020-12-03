@@ -291,7 +291,6 @@ void chk_auction_status(int user_id) {
         output[strlen(output)-1]='\0';
         printf("   current bidding price: %s\n",output);
         
-        //이거 확인 안해봤음 확인해봐야함
         sprintf(query, "select name from user where uid=(select uid from bid_history where id = %s order by bid_price desc limit 0,1);",id);
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
@@ -313,8 +312,14 @@ void search_category(int user_id) {
     int num;
     char query[1000];
     char category[20];
+    char description[100];
+    char input[5];
     char *output;
     char *id;
+    char *latest_bid;
+    char *buy_it_now;
+    char *status;
+
     printf("----< Search items by category > : (Enter the number)\n");
     printf("----(1) Electronics\n");
     printf("----(2) Books\n");
@@ -361,7 +366,6 @@ void search_category(int user_id) {
         output[strlen(output)-1]='\0';
         printf("   current bidding price: %s\n",output);
         
-        //이거 확인 안해봤음 확인해봐야함
         sprintf(query, "select name from user where uid=(select uid from bid_history where id = %s order by bid_price desc limit 0,1);",id);
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
@@ -376,7 +380,73 @@ void search_category(int user_id) {
         output=sql_query(query, false);    
         output[strlen(output)-1]='\0';
         printf("   bid ending date: %s\n",output);
-    }    
+    }
+    
+    printf("--- Which item do you want to bid? (Enter the number or 'B' to go back to the previous menu) :");
+    int is_num=0;
+    while (!is_num) {
+        scanf("%s",input);
+        if (!strcmp(input,"B")) return;
+        is_num=atoi(input);
+        if (!is_num) printf("wrong input. try again\n");
+        int chk=0;
+        for (int i=0; i<num; i++) {
+            if (is_num == i+1) {
+                chk++;
+                break;
+            }
+        }
+        if (!chk) {
+            is_num=0;
+            printf("wrong input. try again\n");
+        }
+    }
+    int item = is_num-1;
+
+    sprintf(query, "select id from item where category='%s' order by id asc limit %d,1;",category,item);
+    id=sql_query(query, false);
+    id[strlen(id)-1]='\0';
+    
+    sprintf(query, "select latest_bid from item where category='%s' order by id asc limit %d,1;",category,item);
+    latest_bid=sql_query(query,true);
+    latest_bid[strlen(latest_bid)-1]='\0';
+
+    sprintf(query, "select buy_it_now from item where category='%s' order by id asc limit %d,1;",category,item);
+    buy_it_now=sql_query(query,true);
+    buy_it_now[strlen(buy_it_now)-1]='\0';
+
+    sprintf(query, "select status from item where category='%s' order by id asc limit %d,1;",category,item);
+    status=sql_query(query,false);
+    status[strlen(status)-1]='\0';
+
+    printf("--- Bidding price? (Enter the price or 'buy' to pay for the buy-it-now price) :");
+    is_num=0;
+    while (!is_num) {
+        scanf("%s",input);
+        if (!strcmp(input,"buy")) {
+            sprintf(status, "sold out");
+            sprintf(query, "update item set latest_bid=%s, status='%s' where id=%s;",buy_it_now,status,id);
+            sql_query(query, false);
+            sprintf(query, "insert into bid_history(uid,id,bid_price) values(%d,%s,%s);",user_id,id,buy_it_now);
+            sql_query(query, false);
+            return;
+        }
+        is_num=atoi(input);
+        if (!is_num) printf("wrong input. try again\n");
+    }
+    int bidding_price = is_num;
+    sprintf(query, "insert into bid_history(uid,id,bid_price) values(%d,%s,%d);",user_id,id,bidding_price);
+
+    if (bidding_price < atoi(latest_bid)) {
+        printf("you are outbidded.\n");
+        return;
+    }
+    sql_query(query, false);
+
+    char bids_num = status[0]+1;
+    sprintf(status, "%c bids", bids_num);
+    sprintf(query, "update item set latest_bid=%d, status='%s' where id=%s;",bidding_price,status,id);
+    sql_query(query, false);
 }
 
 void search_description(int user_id) {
@@ -446,6 +516,17 @@ void search_description(int user_id) {
         if (!strcmp(input,"B")) return;
         is_num=atoi(input);
         if (!is_num) printf("wrong input. try again\n");
+        int chk=0;
+        for (int i=0; i<num; i++) {
+            if (is_num == i+1) {
+                chk++;
+                break;
+            }
+        }
+        if (!chk) {
+            is_num=0;
+            printf("wrong input. try again\n");
+        }
     }
     int item = is_num-1;
 
