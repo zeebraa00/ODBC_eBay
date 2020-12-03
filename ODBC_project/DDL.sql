@@ -18,7 +18,7 @@ create table item (
     latest_bid numeric(15,0) not null,
     buy_it_now numeric(15,0),
     status varchar(20),
-    posted_date datetime not null default now(),
+    posted_date datetime,
     end_date datetime,
 	primary key (id),
 	foreign key (uid) references user(uid)
