@@ -6,8 +6,8 @@
 char * ddl1 = "create table user (uid int AUTO_INCREMENT, name varchar(20) not null, email varchar(20) not null, pw varchar(20), level int check (level in (0,1)), primary key (uid) );";
 char * ddl2 = "create table item (id int AUTO_INCREMENT, uid int, category varchar(20), description varchar(100), cond varchar(15) check (cond in ('new', 'like-new', 'very-good', 'good', 'acceptable')), latest_bid numeric(15,0) not null, buy_it_now numeric(15,0), status varchar(20), posted_date datetime, end_date datetime, primary key (id), foreign key (uid) references user(uid) on delete cascade);";
 char * ddl3 = "create table transaction (tid int AUTO_INCREMENT, id int, transaction_date datetime default now(), seller_id int, buyer_id int, sell_price numeric(15,0) not null, primary key (tid), foreign key (id) references item(id) on delete cascade, foreign key (seller_id) references user(uid) on delete cascade, foreign key (buyer_id) references user(uid) on delete cascade );";
-char * ddl4 = "create table bid_history (uid int, id int, bid_price numeric(15,0), status varchar(50), primary key (id, bid_price), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
-char * ddl5 = "create table watched ( uid int, id int, watchedAt datetime, primary key (uid, id, watchedAt), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
+char * ddl4 = "create table bid_history (uid int, id int, bid_price numeric(15,0), status varchar(100), primary key (id, bid_price), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
+char * ddl5 = "create table watched ( uid int, id int, watchedAt datetime default now(), primary key (uid, id, watchedAt), foreign key (uid) references user(uid) on delete cascade, foreign key (id) references item(id) on delete cascade );";
 char * admin = "insert into user(name,email,pw,level) values('admin','admin','admin1234',1);";
 
 MYSQL *conn;
@@ -394,6 +394,9 @@ void search_category(int user_id) {
         strcpy(output,sql_query(query,0)); 
         output[strlen(output)-1]='\0';
         printf("   bid ending date: %s\n",output);
+        
+        sprintf(query, "insert into watched(uid,id) values(%d,%s);",user_id,id);
+        sql_query(query,0);
     }
     printf("--- Which item do you want to bid? (Enter the number or 'B' to go back to the previous menu) :");
     int is_num=0;
@@ -478,12 +481,12 @@ void search_category(int user_id) {
     sprintf(history_status,"You are the highest bidder.");
     sprintf(query, "insert into bid_history(uid,id,bid_price,status) values(%d,%s,%d,'%s');",user_id,id,bidding_price,history_status);
     sql_query(query, 0);
-    sprintf(status, "You are outbidded");
-    sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",status,id,bidding_price);
+    sprintf(history_status, "You are outbidded");
+    sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",history_status,id,bidding_price);
     sql_query(query, 0);
 
-    char bids_num = status[0]+1;
-    sprintf(status, "%c bids", bids_num);
+    char bids_num = status[0];
+    sprintf(status, "%d bids", bids_num+1-48);
     sprintf(query, "update item set latest_bid=%d, status='%s' where id=%s;",bidding_price,status,id);
     sql_query(query, 0);
 }
@@ -552,6 +555,9 @@ void search_description(int user_id) {
         strcpy(output,sql_query(query, 0)); 
         output[strlen(output)-1]='\0';
         printf("   bid ending date: %s\n",output);
+        
+        sprintf(query, "insert into watched(uid,id) values(%d,%s);",user_id,id);
+        sql_query(query,0);
     }
     
     printf("--- Which item do you want to bid? (Enter the number or 'B' to go back to the previous menu) :");
@@ -641,8 +647,8 @@ void search_description(int user_id) {
     sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",status,id,bidding_price);
     sql_query(query, 0);
 
-    char bids_num = status[0]+1;
-    sprintf(status, "%c bids", bids_num);
+    char bids_num = status[0];
+    sprintf(status, "%c bids", bids_num+1-48);
     sprintf(query, "update item set latest_bid=%d, status='%s' where id=%s;",bidding_price,status,id);
     sql_query(query, 0);
 }
@@ -711,6 +717,9 @@ void search_seller(int user_id) {
         strcpy(output,sql_query(query, 0));
         output[strlen(output)-1]='\0';
         printf("   bid ending date: %s\n",output);
+
+        sprintf(query, "insert into watched(uid,id) values(%d,%s);",user_id,id);
+        sql_query(query,0);
     }
     
     printf("--- Which item do you want to bid? (Enter the number or 'B' to go back to the previous menu) :");
@@ -746,7 +755,7 @@ void search_seller(int user_id) {
     strcpy(buy_it_now,sql_query(query, 0));
     buy_it_now[strlen(buy_it_now)-1]='\0';
 
-    sprintf(query, "select id from item where uid=(select uid from user where name='%s') order by id asc limit %d,1;",seller,item);
+    sprintf(query, "select uid from user where name='%s';",seller);
     strcpy(uid,sql_query(query, 0));
     uid[strlen(uid)-1]='\0';
 
@@ -800,8 +809,8 @@ void search_seller(int user_id) {
     sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",status,id,bidding_price);
     sql_query(query, 0);
 
-    char bids_num = status[0]+1;
-    sprintf(status, "%c bids", bids_num);
+    char bids_num = status[0];
+    sprintf(status, "%c bids", bids_num+1-48);
     sprintf(query, "update item set latest_bid=%d, status='%s' where id=%s;",bidding_price,status,id);
     sql_query(query, 0);
 }
@@ -869,6 +878,9 @@ void search_date(int user_id) {
         strcpy(output,sql_query(query,0));
         output[strlen(output)-1]='\0';
         printf("   bid ending date: %s\n",output);
+
+        sprintf(query, "insert into watched(uid,id) values(%d,%s);",user_id,id);
+        sql_query(query,0);
     }
     
     printf("--- Which item do you want to bid? (Enter the number or 'B' to go back to the previous menu) :");
@@ -958,8 +970,8 @@ void search_date(int user_id) {
     sprintf(query, "update bid_history set status='%s' where id=%s and bid_price < %d;",status,id,bidding_price);
     sql_query(query, 0);
 
-    char bids_num = status[0]+1;
-    sprintf(status, "%c bids", bids_num);
+    char bids_num = status[0];
+    sprintf(status, "%c bids", bids_num+1-48);
     sprintf(query, "update item set latest_bid=%d, status='%s' where id=%s;",bidding_price,status,id);
     sql_query(query, 0);
 }
@@ -1134,31 +1146,61 @@ void chk_account(int user_id) {
 };
 
 void main_menu(int user_id) {
-    while (1) {
-        int num;
-        printf("\n----< Main menu >\n");
-        printf("----(1) Sell item\n");
-        printf("----(2) Status of Your Item Listed on Auction\n");
-        printf("----(3) Search item\n");
-        printf("----(4) Check Status of your Bid\n");
-        printf("----(5) Check your Account\n");
-        printf("----(6) Quit\n");
-        num = user_input(6);
-        
-        if (num == 1) {
-            sell_item(user_id);
-        } else if (num == 2) {
-            chk_auction_status(user_id);
-        } else if (num == 3) {
-            search_item(user_id);
-        } else if (num == 4) {
-            chk_bid_status(user_id);
-        } else if (num == 5) {
-            chk_account(user_id);
-        } else if (num == 6) {
-            exit(0);
-        } else {
-            puts("wrong input");
+    if (user_id != 1) {
+        while (1) {
+            int num;
+            printf("\n----< Main menu >\n");
+            printf("----(1) Sell item\n");
+            printf("----(2) Status of Your Item Listed on Auction\n");
+            printf("----(3) Search item\n");
+            printf("----(4) Check Status of your Bid\n");
+            printf("----(5) Check your Account\n");
+            printf("----(6) Quit\n");
+            num = user_input(6);
+            
+            if (num == 1) {
+                sell_item(user_id);
+            } else if (num == 2) {
+                chk_auction_status(user_id);
+            } else if (num == 3) {
+                search_item(user_id);
+            } else if (num == 4) {
+                chk_bid_status(user_id);
+            } else if (num == 5) {
+                chk_account(user_id);
+            } else if (num == 6) {
+                exit(0);
+            } else {
+                puts("wrong input");
+            }
+        }
+    } else {
+        while (1) {
+            int num;
+            printf("\n----< ADMIN Main menu >\n");
+            printf("----(1) User List\n");
+            printf("----(2) Item List\n");
+            printf("----(3) Watch List\n");
+            printf("----(4) Transaction List\n");
+            printf("----(5) Bid List\n");
+            printf("----(6) Quit\n");
+            num = user_input(6);
+            
+            if (num == 1) {
+                sell_item(user_id);
+            } else if (num == 2) {
+                chk_auction_status(user_id);
+            } else if (num == 3) {
+                search_item(user_id);
+            } else if (num == 4) {
+                chk_bid_status(user_id);
+            } else if (num == 5) {
+                chk_account(user_id);
+            } else if (num == 6) {
+                exit(0);
+            } else {
+                puts("wrong input");
+            }
         }
     }
 }
