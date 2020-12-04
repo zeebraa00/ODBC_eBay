@@ -137,9 +137,9 @@ int login() {
     printf("email:");scanf("%s",email); 
     printf("password:");scanf("%s",pw);
     sprintf(query, "select uid from user where email='%s' and pw='%s';",email,pw);
-    printf("Query : %s\n",query);
+    // printf("Query : %s\n",query);
     output=sql_query(query, 0);
-    printf("query output : %s\n",output);
+    // printf("query output : %s\n",output);
     if (strcmp(output,"")) {
         puts("login success");
         char *temp = (char *) malloc(10);
@@ -166,10 +166,10 @@ void sign_up() {
     printf("---- password:");scanf("%s",pw);
     sprintf(name,"%s %s",firstname,lastname);
     sprintf(query, "insert into user(name,email,pw,level) values('%s','%s','%s',%d);",name,email,pw,0);
-    printf("Query : %s\n",query);
-    output=sql_query(query, 0);
-    printf("query output : %s\n",output);
-    // puts("sign up success");
+    // printf("Query : %s\n",query);
+    sql_query(query, 0);
+    // printf("query output : %s\n",output);
+    puts("sign up success");
 }
 
 int login_admin() {
