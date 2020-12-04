@@ -1145,6 +1145,266 @@ void chk_account(int user_id) {
     printf("Total balance : %d won\n",income+commission+outcome);
 };
 
+void admin_user_list(int user_id) {
+    char query[100];
+    char output[100];
+    char uid[10];
+    char name[10];
+    char email[10];
+    char password[10];
+    char level[10];
+    int num;
+
+    sprintf(query, "select count(uid) from user;");
+    strcpy(output,sql_query(query,0));
+    num = atoi(output);
+    printf("\n#### total number of users : %d\n",num);
+    for (int i = 0; i < num; i++){
+        sprintf(query, "select * from user order by uid asc limit %d,1;",i);
+        strcpy(output,sql_query(query,0));
+        int count=0;
+        char *ptr = strtok(output, "+");
+        while (ptr != NULL) {
+            // printf("%s\n", ptr);
+            if(count==0) {
+                count++;
+                strcpy(uid,ptr);
+            } else if (count==1) {
+                count++;
+                strcpy(name,ptr);
+            } else if (count==2) {
+                count++;
+                strcpy(email,ptr);
+            } else if (count==3) {
+                count++;
+                strcpy(password,ptr);
+            } else if (count==4) {
+                count++;
+                strcpy(level,ptr);
+            }
+            ptr = strtok(NULL, "+");
+        }
+        
+        printf("\n[user %d]\n",i+1);
+        printf("uid : %s\n",uid);
+        printf("name : %s\n",name);
+        printf("email : %s\n",email);
+        printf("password : %s\n",password);
+        printf("level : %s\n",level);
+    }
+}
+
+void admin_item_list(int user_id) {
+    char query[100];
+    char output[100];
+    char id[10];
+    char uid[10];
+    char category[10];
+    char description[10];
+    char condition[10];
+    char latest_bid[10];
+    char buy_it_now[10];
+    char status[10];
+    char posted_date[10];
+    char end_date[10];
+    int num;
+
+    sprintf(query, "select count(id) from item;");
+    strcpy(output,sql_query(query,0));
+    num = atoi(output);
+    printf("\n#### total number of items : %d\n",num);
+    for (int i = 0; i < num; i++){
+        sprintf(query, "select * from item order by id asc limit %d,1;",i);
+        strcpy(output,sql_query(query,0));
+        int count=0;
+        char *ptr = strtok(output, "+");
+        while (ptr != NULL) {
+            // printf("%s\n", ptr);
+            if(count==0) {
+                count++;
+                strcpy(id,ptr);
+            } else if (count==1) {
+                count++;
+                strcpy(uid,ptr);
+            } else if (count==2) {
+                count++;
+                strcpy(category,ptr);
+            } else if (count==3) {
+                count++;
+                strcpy(description,ptr);
+            } else if (count==4) {
+                count++;
+                strcpy(condition,ptr);
+            } else if (count==5) {
+                count++;
+                strcpy(latest_bid,ptr);
+            } else if (count==6) {
+                count++;
+                strcpy(buy_it_now,ptr);
+            } else if (count==7) {
+                count++;
+                strcpy(status,ptr);
+            } else if (count==8) {
+                count++;
+                strcpy(posted_date,ptr);
+            } else if (count==9) {
+                count++;
+                strcpy(end_date,ptr);
+            }
+            ptr = strtok(NULL, "+");
+        }
+        
+        printf("\n[item %d]\n",i+1);
+        printf("id : %s\n",id);
+        printf("uid : %s\n",uid);
+        printf("category : %s\n",category);
+        printf("description : %s\n",description);
+        printf("condition : %s\n",condition);
+        printf("latest_bid : %s\n",latest_bid);
+        printf("buy_it_now : %s\n",buy_it_now);
+        printf("status : %s\n",status);
+        printf("posted_date : %s\n",posted_date);
+        printf("end_date : %s\n",end_date);
+    }
+}
+
+void admin_watch_list(int user_id) {
+    char query[100];
+    char output[100];
+    char uid[10];
+    char id[10];
+    char watchedAt[10];
+    int num;
+
+    sprintf(query, "select count(*) from watched;");
+    strcpy(output,sql_query(query,0));
+    num = atoi(output);
+    printf("\n#### total number of watched : %d\n",num);
+    for (int i = 0; i < num; i++){
+        sprintf(query, "select * from watched order by uid,id,watchedAt asc limit %d,1;",i);
+        strcpy(output,sql_query(query,0));
+        int count=0;
+        char *ptr = strtok(output, "+");
+        while (ptr != NULL) {
+            // printf("%s\n", ptr);
+            if(count==0) {
+                count++;
+                strcpy(uid,ptr);
+            } else if (count==1) {
+                count++;
+                strcpy(id,ptr);
+            } else if (count==2) {
+                count++;
+                strcpy(watchedAt,ptr);
+            }
+            ptr = strtok(NULL, "+");
+        }
+        
+        printf("\n[watched %d]\n",i+1);
+        printf("uid : %s\n",uid);
+        printf("id : %s\n",id);
+        printf("watchedAt : %s\n",watchedAt);
+    }
+}
+
+void admin_transaction_list(int user_id) {
+    char query[100];
+    char output[100];
+    char tid[10];
+    char id[10];
+    char transaction_date[10];
+    char seller_id[10];
+    char buyer_id[10];
+    char sell_price[10];
+    int num;
+
+    sprintf(query, "select count(tid) from transaction;");
+    strcpy(output,sql_query(query,0));
+    num = atoi(output);
+    printf("\n#### total number of transactions : %d\n",num);
+    for (int i = 0; i < num; i++){
+        sprintf(query, "select * from transaction order by tid asc limit %d,1;",i);
+        strcpy(output,sql_query(query,0));
+        int count=0;
+        char *ptr = strtok(output, "+");
+        while (ptr != NULL) {
+            // printf("%s\n", ptr);
+            if(count==0) {
+                count++;
+                strcpy(tid,ptr);
+            } else if(count==1) {
+                count++;
+                strcpy(id,ptr);
+            } else if (count==2) {
+                count++;
+                strcpy(transaction_date,ptr);
+            } else if (count==3) {
+                count++;
+                strcpy(seller_id,ptr);
+            } else if (count==4) {
+                count++;
+                strcpy(buyer_id,ptr);
+            } else if (count==5) {
+                count++;
+                strcpy(sell_price,ptr);
+            }
+            ptr = strtok(NULL, "+");
+        }
+        
+        printf("\n[transaction %d]\n",i+1);
+        printf("tid: %s\n",tid);
+        printf("id : %s\n",id);
+        printf("transaction_date : %s\n",transaction_date);
+        printf("seller_id : %s\n",seller_id);
+        printf("buyer_id : %s\n",buyer_id);
+        printf("sell_price : %s\n",sell_price);
+    }
+}
+
+void admin_bid_list(int user_id) {
+    char query[100];
+    char output[100];
+    char uid[10];
+    char id[10];
+    char bid_price[10];
+    char status[10];
+    int num;
+
+    sprintf(query, "select count(*) from bid_history;");
+    strcpy(output,sql_query(query,0));
+    num = atoi(output);
+    printf("\ntotal number of bid_history : %d\n",num);
+    for (int i = 0; i < num; i++){
+        sprintf(query, "select * from bid_history order by id, bid_price asc limit %d,1;",i);
+        strcpy(output,sql_query(query,0));
+        int count=0;
+        char *ptr = strtok(output, "+");
+        while (ptr != NULL) {
+            // printf("%s\n", ptr);
+            if(count==0) {
+                count++;
+                strcpy(uid,ptr);
+            } else if (count==1) {
+                count++;
+                strcpy(id,ptr);
+            } else if (count==2) {
+                count++;
+                strcpy(bid_price,ptr);
+            } else if (count==3) {
+                count++;
+                strcpy(status,ptr);
+            }
+            ptr = strtok(NULL, "+");
+        }
+        
+        printf("\n[bid %d]\n",i+1);
+        printf("uid : %s\n",uid);
+        printf("id : %s\n",id);
+        printf("bid_price : %s\n",bid_price);
+        printf("status : %s\n",status);
+    }
+}
+
 void main_menu(int user_id) {
     if (user_id != 1) {
         while (1) {
@@ -1178,24 +1438,24 @@ void main_menu(int user_id) {
         while (1) {
             int num;
             printf("\n----< ADMIN Main menu >\n");
-            printf("----(1) User List\n");
-            printf("----(2) Item List\n");
-            printf("----(3) Watch List\n");
-            printf("----(4) Transaction List\n");
-            printf("----(5) Bid List\n");
+            printf("----(1) View User Statics\n");
+            printf("----(2) View Item Statics\n");
+            printf("----(3) View Watch Statics\n");
+            printf("----(4) View Transaction Statics\n");
+            printf("----(5) View Bid Statics\n");
             printf("----(6) Quit\n");
             num = user_input(6);
             
             if (num == 1) {
-                sell_item(user_id);
+                admin_user_list(user_id);
             } else if (num == 2) {
-                chk_auction_status(user_id);
+                admin_item_list(user_id);
             } else if (num == 3) {
-                search_item(user_id);
+                admin_watch_list(user_id);
             } else if (num == 4) {
-                chk_bid_status(user_id);
+                admin_transaction_list(user_id);
             } else if (num == 5) {
-                chk_account(user_id);
+                admin_bid_list(user_id);
             } else if (num == 6) {
                 exit(0);
             } else {

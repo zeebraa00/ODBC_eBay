@@ -65,3 +65,18 @@ create table watched (
 );
 
 insert into user(name,email,pw,level) values('admin','admin','admin1234',1);
+
+insert into user(name,email,pw,level) values('1 2', '3', '4', 0);
+insert into user(name,email,pw,level) values('2 3', '4', '5', 0);
+
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(2,'Electronics','1-1','new',0,1000,'0 bids','2020-12-04 06:18:00','2020-12-12 00:00:00');
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(2,'Books','1-2','like-new',0,2000,'0 bids','2020-12-04 06:18:00','2020-12-13 00:00:00');
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(2,'Home','1-3','very-good',0,3000,'0 bids','2020-12-04 06:18:00','2020-12-14 00:00:00');
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(2,'Clothing','1-4','good',0,4000,'0 bids','2020-12-04 06:19:00','2020-12-15 00:00:00');
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(2,'Sporting','1-5','acceptable',0,5000,'0 bids','2020-12-04 06:19:00','2020-12-16 00:00:00');
+
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(3,'Electronics','2-1','new',0,1000,'0 bids','2020-12-04 06:19:00','2020-12-12 00:00:00');
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(3,'Books','2-2','like-new',0,2000,'0 bids','2020-12-04 06:20:00','2020-12-13 00:00:00');
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(3,'Home','2-3','very-good',0,3000,'0 bids','2020-12-04 06:20:00','2020-12-14 00:00:00');
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(3,'Clothing','2-4','good',0,4000,'0 bids','2020-12-04 06:20:00','2020-12-15 00:00:00');
+insert into item(uid,category,description,cond,latest_bid,buy_it_now,status,posted_date,end_date) values(3,'Sporting','2-5','acceptable',0,5000,'0 bids','2020-12-04 06:20:00','2020-12-16 00:00:00');
