@@ -7,7 +7,7 @@
 - ODBC_project/ 에서 실행
 
 ```shell
-$ gcc main.c -I ./mysql -lmysqlclient && ./a.out
+$ gcc eBay.c -I ./mysql -lmysqlclient && ./a.out
 ```
 
 ### Language
